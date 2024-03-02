@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { UserService } from '../user/user.service';
 import { EncryptionService } from 'src/shared/services/encryption/encryption.service';
-import { TokenService } from 'src/shared/services/token/token.service';
 import { CustomUnauthorizedException } from 'src/shared/exceptions/http-exception';
+import { TokenService } from 'src/shared/services/token/token.service';
 
 @Injectable()
 export class AuthService {
@@ -39,7 +39,7 @@ export class AuthService {
       email: user.email,
     };
 
-    const token = this.tokenService.create(tokenSub);
+    const token = this.tokenService.createPair(tokenSub);
 
     delete user.password;
 
