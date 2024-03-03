@@ -6,11 +6,7 @@ export const databaseConfig = async (
 ): Promise<TypeOrmModuleOptions> => {
   return {
     type: 'postgres',
-    host: configService.getOrThrow<string>('DATABASE_HOST'),
-    port: configService.getOrThrow<number>('DATABASE_PORT'),
-    username: configService.getOrThrow<string>('DATABASE_USERNAME'),
-    password: configService.getOrThrow<string>('DATABASE_PASSWORD'),
-    database: configService.getOrThrow<string>('DATABASE_NAME'),
+    url: configService.get<string>('POSTGRES_URL'),
     autoLoadEntities: true,
     migrations: [
       /*...*/
