@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { UserService } from '../user/user.service';
-// import { EncryptionService } from 'src/shared/services/encryption/encryption.service';
 import { EncryptionService } from '../../shared/services/encryption/encryption.service';
 import { CustomUnauthorizedException } from '../../shared/exceptions/http-exception';
 import { TokenService } from '../../shared/services/token/token.service';
@@ -45,6 +44,5 @@ export class AuthService {
     delete user.password;
 
     return { user, token };
-    // return { user };
   }
 }

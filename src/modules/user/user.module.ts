@@ -8,7 +8,6 @@ import { EncryptionModule } from '../../shared/services/encryption/encryption.mo
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), EncryptionModule],
-  // imports: [TypeOrmModule.forFeature([User])],
   exports: [UserService],
   controllers: [UserController],
   providers: [UserService, UserRepository],
