@@ -2,14 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { UserService } from '../user/user.service';
 // import { EncryptionService } from 'src/shared/services/encryption/encryption.service';
-import { CustomUnauthorizedException } from 'src/shared/exceptions/http-exception';
-import { TokenService } from 'src/shared/services/token/token.service';
+import { EncryptionService } from '../../shared/services/encryption/encryption.service';
+import { CustomUnauthorizedException } from '../../shared/exceptions/http-exception';
+import { TokenService } from '../../shared/services/token/token.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
-    // private encryptionService: EncryptionService,
+    private encryptionService: EncryptionService,
     private tokenService: TokenService,
   ) {}
   async login(body: LoginDto) {
@@ -22,28 +23,28 @@ export class AuthService {
       });
     }
 
-    // const passwordMatch = await this.encryptionService.compare(
-    //   body.password,
-    //   user.password,
-    // );
+    const passwordMatch = await this.encryptionService.compare(
+      body.password,
+      user.password,
+    );
 
-    // if (!passwordMatch) {
-    //   throw new CustomUnauthorizedException({
-    //     code: 'invalid-username-or-password',
-    //     message: 'Invalid username or password',
-    //   });
-    // }
+    if (!passwordMatch) {
+      throw new CustomUnauthorizedException({
+        code: 'invalid-username-or-password',
+        message: 'Invalid username or password',
+      });
+    }
 
-    // const tokenSub: Record<string, unknown> = {
-    //   userId: user.id,
-    //   email: user.email,
-    // };
+    const tokenSub: Record<string, unknown> = {
+      userId: user.id,
+      email: user.email,
+    };
 
-    // const token = this.tokenService.createPair(tokenSub);
+    const token = this.tokenService.createPair(tokenSub);
 
-    // delete user.password;
+    delete user.password;
 
-    // return { user, token };
-    return { user };
+    return { user, token };
+    // return { user };
   }
 }
