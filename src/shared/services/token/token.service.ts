@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SignOptions, sign } from 'jsonwebtoken';
-import { CustomInternalServerErrorException } from 'src/shared/exceptions/http-exception';
+import { CustomInternalServerErrorException } from '../../exceptions/http-exception';
 
 @Injectable()
 export class TokenService {
