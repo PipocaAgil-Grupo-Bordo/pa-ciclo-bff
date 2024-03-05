@@ -17,8 +17,8 @@ export class AuthService {
 
     if (!user) {
       throw new CustomUnauthorizedException({
-        code: 'invalid-username-or-password',
-        message: 'Invalid username or password',
+        code: 'invalid-email-or-password',
+        message: 'Invalid email or password',
       });
     }
 
