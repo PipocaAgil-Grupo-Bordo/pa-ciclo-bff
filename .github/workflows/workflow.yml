@@ -21,6 +21,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install, build and run migrations
+      env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
       run: |
         npm install
         npm run migration:run
