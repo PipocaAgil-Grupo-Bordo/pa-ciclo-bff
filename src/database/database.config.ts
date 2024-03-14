@@ -12,6 +12,6 @@ export const databaseConfig = async (
       /*...*/
     ],
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-    synchronize: configService.getOrThrow('POSTGRES_SYNC'),
+    synchronize: false,
   };
 };
