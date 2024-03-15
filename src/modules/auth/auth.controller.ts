@@ -10,4 +10,9 @@ export class AuthController {
   login(@Body() body: LoginDto) {
     return this.authService.login(body);
   }
+
+  @Post('reset-password/request')
+  requestPasswordReset(@Body() { email }: { email: string }) {
+    return this.authService.requestPasswordReset(email);
+  }
 }
