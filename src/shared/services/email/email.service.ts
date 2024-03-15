@@ -38,7 +38,7 @@ export class EmailService {
                 <div style="background-color: #8c36c7; color: #fff; padding: 10px; border-radius: 5px; margin-top: 20px; text-align: center;">
                   <h3 style="margin: 0; font-size: 24px;">${code}</h3>
                 </div>
-                <p style="margin-top: 20px;">Se você não solicitou essa redefinição de senha, pode ignorar este e-mail com segurança. Este link é válido por 1 hora.</p>
+                <p style="margin-top: 20px;">Se você não solicitou essa redefinição de senha, pode ignorar este e-mail com segurança. Este código é válido por 1 hora.</p>
                 <p style="margin-top: 20px;">Atenciosamente,<br><strong style="color: #8c36c7;">Equipe Ciclo Ágil</strong></p>
               </div>
             </div>
