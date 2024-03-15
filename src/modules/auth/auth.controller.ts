@@ -12,7 +12,7 @@ export class AuthController {
   }
 
   @Post('reset-password/request')
-  requestPasswordReset(@Body() { email }: { email: string }) {
-    return this.authService.requestPasswordReset(email);
+  async requestPasswordReset(@Body() { email }: { email: string }) {
+    return await this.authService.requestPasswordReset(email);
   }
 }

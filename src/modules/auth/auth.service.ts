@@ -3,6 +3,7 @@ import {
   CustomNotFoundException,
   CustomUnauthorizedException,
 } from '../../shared/exceptions/http-exception';
+import { EmailService } from '../../shared/services/email/email.service';
 import { EncryptionService } from '../../shared/services/encryption/encryption.service';
 import { TokenService } from '../../shared/services/token/token.service';
 import { UserService } from '../user/user.service';
@@ -16,6 +17,7 @@ export class AuthService {
     private encryptionService: EncryptionService,
     private tokenService: TokenService,
     private verificationCodeService: VerificationCodeService,
+    private emailService: EmailService,
   ) {}
   async login(body: LoginDto) {
     const user = await this.userService.findByEmail(body.email);
@@ -52,9 +54,9 @@ export class AuthService {
   }
 
   async requestPasswordReset(email: string) {
-    const emailExists = this.userService.findByEmail(email);
+    const user = await this.userService.findByEmail(email);
 
-    if (!emailExists) {
+    if (!user) {
       throw new CustomNotFoundException({
         code: 'email-not-found',
         message: 'Email not found',
@@ -63,10 +65,10 @@ export class AuthService {
 
     const verificationCode = await this.verificationCodeService.generate();
 
-    //Call the emailService and send email
+    await this.emailService.sendVerificationCode(user, verificationCode);
 
-    // this.verificationCodeService.insert(verificationCode, email);
+    await this.verificationCodeService.insert(verificationCode, email);
 
-    return verificationCode;
+    return { message: `Verification code sent to ${email}` };
   }
 }
