@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { MoreThanOrEqual } from 'typeorm';
-import { v4 as uuid } from 'uuid';
 import { VerificationCodeRepository } from './verification-code.repository';
 
 @Injectable()
