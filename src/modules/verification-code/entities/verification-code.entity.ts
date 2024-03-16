@@ -1,10 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity } from 'typeorm';
+import { IdTimestampBaseEntity } from '../../../shared/common/id-timestamp.base-entity';
 
 @Entity()
-export class VerificationCode {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class VerificationCode extends IdTimestampBaseEntity {
   @Column()
   code: string;
 
