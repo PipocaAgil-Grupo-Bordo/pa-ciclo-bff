@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CustomConflictException } from '../../shared/exceptions/http-exception';
+import emailValidator from 'deep-email-validator';
+import {
+  CustomBadRequestException,
+  CustomConflictException,
+} from '../../shared/exceptions/http-exception';
 import { EncryptionService } from '../../shared/services/encryption/encryption.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
@@ -35,6 +39,15 @@ export class UserService {
       throw new CustomConflictException({
         code: 'email-already-registered',
         message: 'This email is already registered',
+      });
+    }
+
+    const isValidEmail = await emailValidator(user.email);
+
+    if (!isValidEmail.valid) {
+      throw new CustomBadRequestException({
+        code: 'inexistent-email-address',
+        message: 'This email address is invalid or does not exist',
       });
     }
 
