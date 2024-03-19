@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsPasswordStrong } from './password-strength.decorator';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -11,5 +12,6 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsString()
+  @IsPasswordStrong()
   password: string;
 }
