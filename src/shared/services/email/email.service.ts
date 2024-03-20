@@ -1,10 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import emailValidator from 'deep-email-validator';
 import * as nodemailer from 'nodemailer';
 import { User } from '../../../modules/user/entities/user.entity';
 import { CustomInternalServerErrorException } from '../../exceptions/http-exception';
 
 @Injectable()
 export class EmailService {
+  async isValid(email: string) {
+    const { valid } = await emailValidator(email);
+
+    return valid;
+  }
+
   async sendVerificationCode(user: User, code: string) {
     const transport = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,

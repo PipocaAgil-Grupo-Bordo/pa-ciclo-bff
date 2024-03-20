@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import emailValidator from 'deep-email-validator';
 import {
   CustomBadRequestException,
   CustomConflictException,
@@ -8,12 +7,14 @@ import { EncryptionService } from '../../shared/services/encryption/encryption.s
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { UserRepository } from './user.repository';
+import { EmailService } from '../../shared/services/email/email.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private userRepository: UserRepository,
     private encryptionService: EncryptionService,
+    private emailService: EmailService,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -42,14 +43,14 @@ export class UserService {
       });
     }
 
-    const isValidEmail = await emailValidator(user.email);
+    // const isValidEmail = await this.emailService.isValid(user.email);
 
-    if (!isValidEmail.valid) {
-      throw new CustomBadRequestException({
-        code: 'inexistent-email-address',
-        message: 'This email address is invalid or does not exist',
-      });
-    }
+    // if (!isValidEmail) {
+    //   throw new CustomBadRequestException({
+    //     code: 'inexistent-email-address',
+    //     message: 'This email address is invalid or does not exist',
+    //   });
+    // }
 
     const { password } = user;
 
