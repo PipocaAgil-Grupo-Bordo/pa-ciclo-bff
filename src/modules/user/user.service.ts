@@ -30,37 +30,37 @@ export class UserService {
   }
 
   async create(user: CreateUserDto) {
-    const userExists = await this.userRepository.findOne({
-      where: {
-        email: user.email,
-      },
-    });
+    // const userExists = await this.userRepository.findOne({
+    //   where: {
+    //     email: user.email,
+    //   },
+    // });
 
-    if (userExists) {
-      throw new CustomConflictException({
-        code: 'email-already-registered',
-        message: 'This email is already registered',
-      });
-    }
-
-    // const isValidEmail = await this.emailService.isValid(user.email);
-
-    // if (!isValidEmail) {
-    //   throw new CustomBadRequestException({
-    //     code: 'inexistent-email-address',
-    //     message: 'This email address is invalid or does not exist',
+    // if (userExists) {
+    //   throw new CustomConflictException({
+    //     code: 'email-already-registered',
+    //     message: 'This email is already registered',
     //   });
     // }
+
+    const isValidEmail = await this.emailService.isValid(user.email);
+
+    if (!isValidEmail) {
+      throw new CustomBadRequestException({
+        code: 'inexistent-email-address',
+        message: 'This email address is invalid or does not exist',
+      });
+    }
 
     const { password } = user;
 
     const hashedPassword = this.encryptionService.hashSync(password);
     user.password = hashedPassword;
 
-    const newUser = await this.userRepository.save(user);
+    this.userRepository.save(user);
 
-    delete newUser.password;
+    delete user.password;
 
-    return newUser;
+    return user;
   }
 }
