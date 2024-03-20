@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import {
-  CustomBadRequestException,
-  CustomConflictException,
-} from '../../shared/exceptions/http-exception';
+import { CustomConflictException } from '../../shared/exceptions/http-exception';
+import { EmailService } from '../../shared/services/email/email.service';
 import { EncryptionService } from '../../shared/services/encryption/encryption.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { UserRepository } from './user.repository';
-import { EmailService } from '../../shared/services/email/email.service';
 
 @Injectable()
 export class UserService {
@@ -30,6 +27,8 @@ export class UserService {
   }
 
   async create(user: CreateUserDto) {
+    user.email = user.email.toLowerCase();
+
     const userExists = await this.userRepository.findOne({
       where: {
         email: user.email,
@@ -42,6 +41,8 @@ export class UserService {
         message: 'This email is already registered',
       });
     }
+
+    //Figure out later a better way to do this validation
 
     // const isValidEmail = await this.emailService.isValid(user.email);
 
