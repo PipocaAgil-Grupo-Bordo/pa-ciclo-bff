@@ -14,7 +14,7 @@ export class DatabaseSeederService implements OnModuleInit {
       name: 'Mary Jane',
       email: 'mary@jane.com',
       password: 'Mary@jane1234',
-      birthday: '1995-08-17',
+      birthdate: '1995-08-17',
     };
 
     const existingUser = await this.userService.findByEmail(newUser.email);
