@@ -20,7 +20,8 @@ export class AuthService {
     private emailService: EmailService,
   ) {}
   async login(body: LoginDto) {
-    const user = await this.userService.findByEmail(body.email);
+    const email = body.email.toLowerCase();
+    const user = await this.userService.findByEmail(email);
 
     if (!user) {
       throw new CustomUnauthorizedException({

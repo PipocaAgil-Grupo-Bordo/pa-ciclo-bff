@@ -11,4 +11,7 @@ export class User extends IdTimestampBaseEntity {
 
   @Column()
   password: string;
+
+  @Column({ type: 'date', nullable: true })
+  birthday: Date;
 }
