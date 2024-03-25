@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { MoreThanOrEqual } from 'typeorm';
+import { CustomNotFoundException } from '../../shared/exceptions/http-exception';
 import { VerificationCodeRepository } from './verification-code.repository';
 
 @Injectable()
@@ -16,8 +17,8 @@ export class VerificationCodeService {
     return this.verificationCodeRepository.save({ code, email, expiresAt });
   }
 
-  validate(code: string, email: string) {
-    return this.verificationCodeRepository.findOne({
+  async validate(code: string, email: string) {
+    const validCode = await this.verificationCodeRepository.findOne({
       where: {
         code,
         email,
@@ -25,6 +26,22 @@ export class VerificationCodeService {
         isUsed: false,
       },
     });
+
+    if (!validCode) {
+      throw new CustomNotFoundException({
+        code: 'invalid-or-expired-code',
+        message: 'This code is invalid or has expired',
+      });
+    }
+
+    return {
+      valid: true,
+      data: {
+        code: validCode.code,
+        email: validCode.email,
+        expiresAt: validCode.expiresAt,
+      },
+    };
   }
 
   async generate() {

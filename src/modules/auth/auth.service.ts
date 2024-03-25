@@ -8,7 +8,7 @@ import { EncryptionService } from '../../shared/services/encryption/encryption.s
 import { TokenService } from '../../shared/services/token/token.service';
 import { UserService } from '../user/user.service';
 import { VerificationCodeService } from '../verification-code/verification-code.service';
-import { LoginDto } from './dto/login.dto';
+import { LoginDto } from './dtos/login.dto';
 
 @Injectable()
 export class AuthService {
