@@ -9,6 +9,8 @@ import { TokenService } from '../../shared/services/token/token.service';
 import { UserService } from '../user/user.service';
 import { VerificationCodeService } from '../verification-code/verification-code.service';
 import { LoginDto } from './dtos/login.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { VerificationCodeValidationDto } from './dtos/verification-code-validation.dto';
 
 @Injectable()
 export class AuthService {
@@ -71,5 +73,48 @@ export class AuthService {
     await this.verificationCodeService.insert(verificationCode, email);
 
     return { message: `Verification code sent to ${email}` };
+  }
+
+  async validateVerificationCode({
+    code,
+    email,
+  }: VerificationCodeValidationDto) {
+    const validCode = await this.verificationCodeService.validate(code, email);
+
+    if (!validCode.valid) {
+      throw new CustomNotFoundException({
+        code: 'invalid-or-expired-code',
+        message: 'This code is invalid or has expired',
+      });
+    }
+
+    return validCode;
+  }
+
+  async resetPassword({ email, code, password }: ResetPasswordDto) {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new CustomNotFoundException({
+        code: 'user-not-found',
+        message: 'There is no user registered with this email',
+      });
+    }
+
+    const verifiedCode = await this.verificationCodeService.validate(
+      code,
+      email,
+    );
+
+    if (!verifiedCode.valid) {
+      throw new CustomNotFoundException({
+        code: 'invalid-or-expired-code',
+        message: 'This code is invalid or has expired',
+      });
+    }
+
+    await this.verificationCodeService.markAsUsed(verifiedCode.data.id);
+
+    return this.userService.update(user.id, { password });
   }
 }
