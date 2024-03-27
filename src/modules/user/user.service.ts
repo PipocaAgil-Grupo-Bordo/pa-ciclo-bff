@@ -3,6 +3,7 @@ import { CustomConflictException } from '../../shared/exceptions/http-exception'
 import { EmailService } from '../../shared/services/email/email.service';
 import { EncryptionService } from '../../shared/services/encryption/encryption.service';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserRepository } from './user.repository';
 
@@ -63,5 +64,19 @@ export class UserService {
     delete newUser.password;
 
     return newUser;
+  }
+
+  async update(id: number, user: UpdateUserDto) {
+    if (user.password) {
+      const hashedPassword = this.encryptionService.hashSync(user.password);
+      user.password = hashedPassword;
+    }
+
+    await this.userRepository.update(id, user);
+
+    return {
+      message: 'Successfully updated!',
+      userId: id,
+    };
   }
 }

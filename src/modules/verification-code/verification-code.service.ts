@@ -40,19 +40,13 @@ export class VerificationCodeService {
       },
     });
 
-    if (!validCode) {
-      throw new CustomNotFoundException({
-        code: 'invalid-or-expired-code',
-        message: 'This code is invalid or has expired',
-      });
-    }
-
     return {
-      valid: true,
+      valid: validCode ? true : false,
       data: {
-        code: validCode.code,
-        email: validCode.email,
-        expiresAt: validCode.expiresAt,
+        id: validCode?.id || undefined,
+        code: validCode?.code || code,
+        email: validCode?.email || email,
+        expiresAt: validCode?.expiresAt || undefined,
       },
     };
   }
@@ -61,5 +55,9 @@ export class VerificationCodeService {
     const code = Math.floor(100000 + Math.random() * 900000);
 
     return code.toString();
+  }
+
+  async markAsUsed(id: number) {
+    return this.verificationCodeRepository.update(id, { isUsed: true });
   }
 }
