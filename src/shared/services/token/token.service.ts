@@ -11,7 +11,6 @@ export class TokenService {
 
   create(sub: Record<string, unknown> | string, options: JwtSignOptions = {}) {
     options.expiresIn = options.expiresIn ?? this.defaultAccessTokenExpiresIn;
-    console.log({ sub });
 
     return this.jwtService.sign({ sub }, options);
   }
