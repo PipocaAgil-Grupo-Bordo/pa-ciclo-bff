@@ -97,7 +97,7 @@ export class AuthService {
       });
     }
 
-    await this.verificationCodeService.markAsUsed(validCode.id);
+    await this.verificationCodeService.delete(validCode.id);
 
     const tokenSub: Record<string, unknown> = {
       userId: user.id,
