@@ -97,6 +97,8 @@ export class AuthService {
       });
     }
 
+    await this.verificationCodeService.markAsUsed(validCode.id);
+
     const tokenSub: Record<string, unknown> = {
       userId: user.id,
       email: user.email,
@@ -131,8 +133,6 @@ export class AuthService {
         message: 'This code is invalid or has expired',
       });
     }
-
-    await this.verificationCodeService.markAsUsed(verifiedCode.id);
 
     return this.userService.update(user.id, { password });
   }
