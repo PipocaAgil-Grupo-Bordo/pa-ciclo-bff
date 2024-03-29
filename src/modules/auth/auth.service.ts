@@ -79,6 +79,15 @@ export class AuthService {
     code,
     email,
   }: VerificationCodeValidationDto) {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new CustomUnauthorizedException({
+        code: 'invalid-email',
+        message: 'Invalid email',
+      });
+    }
+
     const validCode = await this.verificationCodeService.validate(code, email);
 
     if (!validCode.valid) {
@@ -88,7 +97,17 @@ export class AuthService {
       });
     }
 
-    return validCode;
+    const tokenSub: Record<string, unknown> = {
+      userId: user.id,
+      email: user.email,
+    };
+
+    const token = this.tokenService.create(tokenSub, { expiresIn: '1h' });
+
+    return {
+      verificationCode: validCode,
+      token,
+    };
   }
 
   async resetPassword({ email, code, password }: ResetPasswordDto) {
@@ -113,7 +132,7 @@ export class AuthService {
       });
     }
 
-    await this.verificationCodeService.markAsUsed(verifiedCode.data.id);
+    await this.verificationCodeService.markAsUsed(verifiedCode.id);
 
     return this.userService.update(user.id, { password });
   }

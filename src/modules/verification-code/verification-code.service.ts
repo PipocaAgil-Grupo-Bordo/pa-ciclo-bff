@@ -42,12 +42,10 @@ export class VerificationCodeService {
 
     return {
       valid: validCode ? true : false,
-      data: {
-        id: validCode?.id || undefined,
-        code: validCode?.code || code,
-        email: validCode?.email || email,
-        expiresAt: validCode?.expiresAt || undefined,
-      },
+      id: validCode?.id || undefined,
+      code: validCode?.code || code,
+      email: validCode?.email || email,
+      expiresAt: validCode?.expiresAt || undefined,
     };
   }
 
