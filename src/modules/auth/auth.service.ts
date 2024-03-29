@@ -50,17 +50,7 @@ export class AuthService {
       email: user.email,
     };
 
-    const accessToken = this.jwtService.sign(tokenSub, { expiresIn: '1d' });
-
-    const refreshToken = this.jwtService.sign(
-      { sub: accessToken },
-      { expiresIn: '30d' },
-    );
-
-    const token = { accessToken, refreshToken };
-
-    // Refact later to use the token service
-    // const token = this.tokenService.createPair(tokenSub);
+    const token = this.tokenService.createPair(tokenSub);
 
     delete user.password;
 

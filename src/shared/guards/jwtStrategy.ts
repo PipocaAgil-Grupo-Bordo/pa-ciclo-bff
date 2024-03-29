@@ -15,14 +15,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any): Promise<any> {
-    if (!payload.email) {
+    if (!payload.sub.email) {
       throw new CustomBadRequestException({
         code: 'authorization-header-required',
         message: 'An authorization header is required',
       });
     }
 
-    const user = await this.usersService.findByEmail(payload.email);
+    const user = await this.usersService.findByEmail(payload.sub.email);
 
     if (!user) {
       throw new UnauthorizedException('Invalid token');
