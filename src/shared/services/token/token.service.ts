@@ -1,20 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { SignOptions, sign } from 'jsonwebtoken';
-import { CustomInternalServerErrorException } from '../../exceptions/http-exception';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
 @Injectable()
 export class TokenService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   readonly defaultAccessTokenExpiresIn = '1d';
 
   readonly defaultRefreshTokenExpiresIn = '30d';
 
-  create(sub: Record<string, unknown> | string, options: SignOptions = {}) {
+  create(sub: Record<string, unknown> | string, options: JwtSignOptions = {}) {
     options.expiresIn = options.expiresIn ?? this.defaultAccessTokenExpiresIn;
 
-    return sign({ sub }, this.tokenSecret(), options);
+    return this.jwtService.sign({ sub }, options);
   }
 
   createPair(sub: Record<string, unknown> | string) {
@@ -27,17 +25,5 @@ export class TokenService {
       accessToken,
       refreshToken,
     };
-  }
-
-  private tokenSecret() {
-    const value = this.configService.get<string>('TOKEN_SECRET');
-
-    if (!value) {
-      throw new CustomInternalServerErrorException({
-        code: 'token-secret-required-for-authentication-processes',
-        message: 'Token secret is required for authentication processes.',
-      });
-    }
-    return value;
   }
 }
