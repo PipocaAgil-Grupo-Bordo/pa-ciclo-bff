@@ -58,4 +58,8 @@ export class VerificationCodeService {
   async markAsUsed(id: number) {
     return this.verificationCodeRepository.update(id, { isUsed: true });
   }
+
+  async delete(id: number) {
+    return this.verificationCodeRepository.delete(id);
+  }
 }
