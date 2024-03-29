@@ -18,7 +18,7 @@ import { JwtStrategy } from '../../shared/guards/jwtStrategy';
     EmailModule,
     JwtModule.registerAsync({
       useFactory: () => ({
-        secret: process.env.JWT_SECRET,
+        secret: process.env.TOKEN_SECRET,
       }),
     }),
   ],

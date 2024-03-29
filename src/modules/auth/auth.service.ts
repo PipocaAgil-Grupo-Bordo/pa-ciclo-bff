@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import {
   CustomNotFoundException,
   CustomUnauthorizedException,
@@ -9,7 +10,6 @@ import { TokenService } from '../../shared/services/token/token.service';
 import { UserService } from '../user/user.service';
 import { VerificationCodeService } from '../verification-code/verification-code.service';
 import { LoginDto } from './dtos/login.dto';
-import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { VerificationCodeValidationDto } from './dtos/verification-code-validation.dto';
 
 @Injectable()
@@ -20,6 +20,7 @@ export class AuthService {
     private tokenService: TokenService,
     private verificationCodeService: VerificationCodeService,
     private emailService: EmailService,
+    private readonly jwtService: JwtService,
   ) {}
   async login(body: LoginDto) {
     const email = body.email.toLowerCase();
@@ -112,28 +113,7 @@ export class AuthService {
     };
   }
 
-  async resetPassword({ email, code, password }: ResetPasswordDto) {
-    const user = await this.userService.findByEmail(email);
-
-    if (!user) {
-      throw new CustomNotFoundException({
-        code: 'user-not-found',
-        message: 'There is no user registered with this email',
-      });
-    }
-
-    const verifiedCode = await this.verificationCodeService.validate(
-      code,
-      email,
-    );
-
-    if (!verifiedCode.valid) {
-      throw new CustomNotFoundException({
-        code: 'invalid-or-expired-code',
-        message: 'This code is invalid or has expired',
-      });
-    }
-
-    return this.userService.update(user.id, { password });
+  async resetPassword(id: number, password: string) {
+    return this.userService.update(id, { password });
   }
 }
