@@ -21,6 +21,24 @@ export class VerificationCodeService {
     return this.verificationCodeRepository.save({ code, email, expiresAt });
   }
 
+  async find(code: string, email: string) {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new CustomNotFoundException({
+        code: 'email-not-found',
+        message: 'This email is not registered',
+      });
+    }
+
+    return this.verificationCodeRepository.findOne({
+      where: {
+        code,
+        email,
+      },
+    });
+  }
+
   async validate(code: string, email: string) {
     const user = await this.userService.findByEmail(email);
 

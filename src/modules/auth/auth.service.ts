@@ -98,9 +98,8 @@ export class AuthService {
       });
     }
 
-    await this.verificationCodeService.delete(validCode.id);
-
     const tokenSub: Record<string, unknown> = {
+      code: validCode.code,
       userId: user.id,
       email: user.email,
     };
@@ -113,7 +112,25 @@ export class AuthService {
     };
   }
 
-  async resetPassword(id: number, password: string) {
-    return this.userService.update(id, { password });
+  async resetPassword(bearerToken: string, password: string) {
+    const token = bearerToken.split(' ')[1];
+
+    const { sub } = this.tokenService.decode(token);
+
+    const validCode = await this.verificationCodeService.validate(
+      sub.code,
+      sub.email,
+    );
+
+    if (!validCode.valid) {
+      throw new CustomUnauthorizedException({
+        code: 'invalid-token',
+        message: 'This token is invalid or has already been used',
+      });
+    }
+
+    await this.verificationCodeService.delete(validCode.id);
+
+    return this.userService.update(sub.userId, { password });
   }
 }

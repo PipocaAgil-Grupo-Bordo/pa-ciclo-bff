@@ -37,9 +37,9 @@ export class AuthController {
   @Patch('reset-password')
   @UseGuards(AuthGuard('jwt'))
   async resetPassword(@Request() req, @Body() { password }: ResetPasswordDto) {
-    const user = req.user;
+    const bearerToken = req.headers['authorization'];
 
-    return await this.authService.resetPassword(user.id, password);
+    return await this.authService.resetPassword(bearerToken, password);
   }
 
   @Post('reset-password/request')
