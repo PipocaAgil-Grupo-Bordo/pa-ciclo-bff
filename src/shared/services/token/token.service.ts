@@ -26,4 +26,12 @@ export class TokenService {
       refreshToken,
     };
   }
+
+  decode(token: string): any {
+    try {
+      return this.jwtService.verify(token);
+    } catch (error) {
+      return null;
+    }
+  }
 }
