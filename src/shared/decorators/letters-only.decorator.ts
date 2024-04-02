@@ -8,7 +8,8 @@ import {
 @ValidatorConstraint({ name: 'lettersOnly', async: false })
 export class LettersOnlyConstraint implements ValidatorConstraintInterface {
   validate(name: string) {
-    const regex = /^(?=(?:.*[a-zA-Z]){2})[a-zA-Z\s]+$/;
+    const regex =
+      /^(?=(?:.*[a-zA-ZçÇáÁàÀéÉèÈíÍúÚôÔâÂãÃõÕ]){2})[a-zA-ZçÇáÁàÀéÉíÍúÚôÔâÂãÃõÕ\s]+$/;
     return regex.test(name);
   }
 
