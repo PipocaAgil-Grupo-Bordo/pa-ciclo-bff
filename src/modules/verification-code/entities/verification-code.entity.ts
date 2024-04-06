@@ -2,16 +2,16 @@ import { Column, Entity } from 'typeorm';
 import { IdTimestampBaseEntity } from '../../../shared/common/id-timestamp.base-entity';
 
 @Entity()
-export class User extends IdTimestampBaseEntity {
+export class VerificationCode extends IdTimestampBaseEntity {
   @Column()
-  name: string;
+  code: string;
 
   @Column()
   email: string;
 
   @Column()
-  password: string;
+  expiresAt: Date;
 
-  @Column({ type: 'date', nullable: true })
-  birthdate: Date;
+  @Column({ default: false })
+  isUsed: boolean;
 }

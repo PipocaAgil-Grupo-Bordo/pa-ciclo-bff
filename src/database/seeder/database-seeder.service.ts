@@ -11,9 +11,10 @@ export class DatabaseSeederService implements OnModuleInit {
 
   async seedUser() {
     const newUser = {
-      name: 'Mary Jane',
+      name: 'Mary Jane seed',
       email: 'mary@jane.com',
       password: 'Mary@jane1234',
+      birthdate: '1995-08-17',
     };
 
     const existingUser = await this.userService.findByEmail(newUser.email);

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
-import { UserModule } from './modules/user/user.module';
-import { AuthModule } from './modules/auth/auth.module';
 import { DatabaseSeederService } from './database/seeder/database-seeder.service';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { VerificationCodeModule } from './modules/verification-code/verification-code.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { DatabaseSeederService } from './database/seeder/database-seeder.service
     DatabaseModule,
     UserModule,
     AuthModule,
+    VerificationCodeModule,
   ],
   controllers: [],
   providers: [DatabaseSeederService],

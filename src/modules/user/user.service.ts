@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepository } from './user.repository';
-import { User } from './entities/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CustomConflictException } from '../../shared/exceptions/http-exception';
+import { EmailService } from '../../shared/services/email/email.service';
 import { EncryptionService } from '../../shared/services/encryption/encryption.service';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { User } from './entities/user.entity';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
   constructor(
     private userRepository: UserRepository,
     private encryptionService: EncryptionService,
+    private emailService: EmailService,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -23,12 +27,56 @@ export class UserService {
     });
   }
 
-  create(user: CreateUserDto) {
+  async create(user: CreateUserDto) {
+    user.email = user.email.toLowerCase();
+
+    const userExists = await this.userRepository.findOne({
+      where: {
+        email: user.email,
+      },
+    });
+
+    if (userExists) {
+      throw new CustomConflictException({
+        code: 'email-already-registered',
+        message: 'This email is already registered',
+      });
+    }
+
+    //Figure out later a better way to do this validation
+
+    // const isValidEmail = await this.emailService.isValid(user.email);
+
+    // if (!isValidEmail) {
+    //   throw new CustomBadRequestException({
+    //     code: 'inexistent-email-address',
+    //     message: 'This email address is invalid or does not exist',
+    //   });
+    // }
+
     const { password } = user;
 
     const hashedPassword = this.encryptionService.hashSync(password);
     user.password = hashedPassword;
 
-    return this.userRepository.save(user);
+    const newUser = await this.userRepository.save(user);
+
+    delete newUser.password;
+
+    return newUser;
+  }
+
+  async update(id: number, user: UpdateUserDto) {
+    if (user.password) {
+      const hashedPassword = this.encryptionService.hashSync(user.password);
+      user.password = hashedPassword;
+    }
+
+    await this.userRepository.update(id, user);
+
+    return {
+      message: 'Successfully updated!',
+      userId: id,
+    };
   }
 }

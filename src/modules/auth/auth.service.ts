@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { LoginDto } from './dto/login.dto';
-import { UserService } from '../user/user.service';
+import { JwtService } from '@nestjs/jwt';
+import {
+  CustomNotFoundException,
+  CustomUnauthorizedException,
+} from '../../shared/exceptions/http-exception';
+import { EmailService } from '../../shared/services/email/email.service';
 import { EncryptionService } from '../../shared/services/encryption/encryption.service';
-import { CustomUnauthorizedException } from '../../shared/exceptions/http-exception';
 import { TokenService } from '../../shared/services/token/token.service';
+import { UserService } from '../user/user.service';
+import { VerificationCodeService } from '../verification-code/verification-code.service';
+import { LoginDto } from './dtos/login.dto';
+import { VerificationCodeValidationDto } from './dtos/verification-code-validation.dto';
 
 @Injectable()
 export class AuthService {
@@ -11,9 +18,13 @@ export class AuthService {
     private userService: UserService,
     private encryptionService: EncryptionService,
     private tokenService: TokenService,
+    private verificationCodeService: VerificationCodeService,
+    private emailService: EmailService,
+    private readonly jwtService: JwtService,
   ) {}
   async login(body: LoginDto) {
-    const user = await this.userService.findByEmail(body.email);
+    const email = body.email.toLowerCase();
+    const user = await this.userService.findByEmail(email);
 
     if (!user) {
       throw new CustomUnauthorizedException({
@@ -44,5 +55,82 @@ export class AuthService {
     delete user.password;
 
     return { user, token };
+  }
+
+  async requestPasswordReset(email: string) {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new CustomNotFoundException({
+        code: 'email-not-found',
+        message: 'Email not found',
+      });
+    }
+
+    const verificationCode = await this.verificationCodeService.generate();
+
+    await this.emailService.sendVerificationCode(user, verificationCode);
+
+    await this.verificationCodeService.insert(verificationCode, email);
+
+    return { message: `Verification code sent to ${email}` };
+  }
+
+  async validateVerificationCode({
+    code,
+    email,
+  }: VerificationCodeValidationDto) {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new CustomUnauthorizedException({
+        code: 'invalid-email',
+        message: 'Invalid email',
+      });
+    }
+
+    const validCode = await this.verificationCodeService.validate(code, email);
+
+    if (!validCode.valid) {
+      throw new CustomNotFoundException({
+        code: 'invalid-or-expired-code',
+        message: 'This code is invalid or has expired',
+      });
+    }
+
+    const tokenSub: Record<string, unknown> = {
+      code: validCode.code,
+      userId: user.id,
+      email: user.email,
+    };
+
+    const token = this.tokenService.create(tokenSub, { expiresIn: '1h' });
+
+    return {
+      verificationCode: validCode,
+      token,
+    };
+  }
+
+  async resetPassword(bearerToken: string, password: string) {
+    const token = bearerToken.split(' ')[1];
+
+    const { sub } = this.tokenService.decode(token);
+
+    const validCode = await this.verificationCodeService.validate(
+      sub.code,
+      sub.email,
+    );
+
+    if (!validCode.valid) {
+      throw new CustomUnauthorizedException({
+        code: 'invalid-token',
+        message: 'This token is invalid or has already been used',
+      });
+    }
+
+    await this.verificationCodeService.delete(validCode.id);
+
+    return this.userService.update(sub.userId, { password });
   }
 }
