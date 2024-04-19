@@ -10,6 +10,9 @@ export class MenstrualPeriod extends IdTimestampBaseEntity {
   @Column({ type: 'date', nullable: true })
   lastMenstruationDate?: Date;
 
+  @Column()
+  userId: number;
+
   @ManyToOne(() => User, (user) => user.menstrualPeriods)
   user: User;
 }

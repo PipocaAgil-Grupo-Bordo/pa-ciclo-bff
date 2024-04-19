@@ -10,11 +10,14 @@ export class Profile extends IdTimestampBaseEntity {
   @Column({ type: 'double precision', nullable: true })
   weight: number;
 
-  @Column({ default: true, nullable: true })
+  @Column({ default: true })
   isMenstrualCycleRegular: boolean;
 
   @Column({ nullable: true })
   menstrualCycleDuration: number;
+
+  @Column()
+  userId: number;
 
   @OneToOne(() => User)
   user: User;

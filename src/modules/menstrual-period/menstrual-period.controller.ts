@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { CreateMenstrualPeriodDto } from './dtos/create-menstrual-period.dto';
 import { MenstrualPeriodService } from './menstrual-period.service';
 
@@ -9,7 +10,9 @@ export class MenstrualPeriodController {
   ) {}
 
   @Post()
-  create(@Body() createMenstrualPeriodDto: CreateMenstrualPeriodDto) {
-    return this.menstrualPeriodService.create(createMenstrualPeriodDto);
+  @UseGuards(AuthGuard('jwt'))
+  create(@Request() req, @Body() body: CreateMenstrualPeriodDto) {
+    const user = req.user;
+    return this.menstrualPeriodService.create(body, user.id);
   }
 }

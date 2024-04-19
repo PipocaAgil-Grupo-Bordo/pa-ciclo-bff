@@ -6,7 +6,9 @@ import { MenstrualPeriodRepository } from './menstrual-period.repository';
 export class MenstrualPeriodService {
   constructor(private menstrualPeriodRepository: MenstrualPeriodRepository) {}
 
-  async create(menstrualPeriod: CreateMenstrualPeriodDto) {
+  async create(body: CreateMenstrualPeriodDto, userId: number) {
+    const menstrualPeriod = { ...body, userId };
+
     return this.menstrualPeriodRepository.save(menstrualPeriod);
   }
 }
