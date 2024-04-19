@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { IdTimestampBaseEntity } from '../../../shared/common/id-timestamp.base-entity';
+import { MenstrualPeriod } from '../../menstrual-period/entities/menstrual-period.entity';
 
 @Entity()
 export class User extends IdTimestampBaseEntity {
@@ -14,4 +15,7 @@ export class User extends IdTimestampBaseEntity {
 
   @Column({ type: 'date', nullable: true })
   birthdate: Date;
+
+  @OneToMany(() => MenstrualPeriod, (menstrualPeriod) => menstrualPeriod.user)
+  menstrualPeriods: MenstrualPeriod[];
 }
