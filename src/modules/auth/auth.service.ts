@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   CustomNotFoundException,
@@ -15,6 +15,7 @@ import { VerificationCodeValidationDto } from './dtos/verification-code-validati
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
     private encryptionService: EncryptionService,
     private tokenService: TokenService,

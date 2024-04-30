@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { MoreThanOrEqual } from 'typeorm';
 import { CustomNotFoundException } from '../../shared/exceptions/http-exception';
@@ -9,6 +9,7 @@ import { VerificationCodeRepository } from './verification-code.repository';
 export class VerificationCodeService {
   constructor(
     private readonly verificationCodeRepository: VerificationCodeRepository,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
   ) {}
 
