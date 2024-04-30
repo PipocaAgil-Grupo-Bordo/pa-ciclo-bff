@@ -7,9 +7,6 @@ export class MenstrualPeriod extends IdTimestampBaseEntity {
   @Column({ type: 'date', nullable: true })
   startedAt?: Date;
 
-  @Column({ type: 'date', nullable: true })
-  lastMenstruationDate?: Date;
-
   @Column()
   userId: number;
 
