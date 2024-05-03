@@ -3,6 +3,7 @@ import { CustomConflictException } from '../../shared/exceptions/http-exception'
 import { EmailService } from '../../shared/services/email/email.service';
 import { EncryptionService } from '../../shared/services/encryption/encryption.service';
 import { AuthService } from '../auth/auth.service';
+import { ProfileService } from '../profile/profile.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './entities/user.entity';
@@ -16,6 +17,7 @@ export class UserService {
     private userRepository: UserRepository,
     private encryptionService: EncryptionService,
     private emailService: EmailService,
+    private profileService: ProfileService,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -62,7 +64,9 @@ export class UserService {
     const hashedPassword = this.encryptionService.hashSync(password);
     user.password = hashedPassword;
 
-    await this.userRepository.save(user);
+    const newUser = await this.userRepository.save(user);
+
+    await this.profileService.create({ userId: newUser.id });
 
     return this.authService.login({
       email: user.email,

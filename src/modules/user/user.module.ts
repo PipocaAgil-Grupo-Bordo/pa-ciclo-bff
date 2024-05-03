@@ -7,12 +7,14 @@ import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserRepository } from './user.repository';
 import { UserService } from './user.service';
+import { ProfileModule } from '../profile/profile.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     EncryptionModule,
     EmailModule,
+    ProfileModule,
     forwardRef(() => AuthModule),
   ],
   exports: [UserService],
