@@ -1,8 +1,7 @@
-import { Body, Controller, Patch, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Patch, Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateProfileDto } from './dtos/create-profile.dto';
-import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dtos/update-profile.dto';
+import { ProfileService } from './profile.service';
 
 @Controller('profile')
 export class ProfileController {

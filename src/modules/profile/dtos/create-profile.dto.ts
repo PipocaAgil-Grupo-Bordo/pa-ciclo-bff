@@ -3,7 +3,7 @@ import { IsBoolean, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 export class CreateProfileDto {
   @IsNotEmpty()
   @IsNumber()
-  userId?: number;
+  userId: number;
 
   @IsOptional()
   @IsNotEmpty()
