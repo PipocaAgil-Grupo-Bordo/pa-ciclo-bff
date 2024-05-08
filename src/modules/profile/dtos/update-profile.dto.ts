@@ -1,10 +1,6 @@
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
-export class CreateProfileDto {
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
-
+export class UpdateProfileDto {
   @IsOptional()
   @IsNotEmpty()
   @IsNumber()

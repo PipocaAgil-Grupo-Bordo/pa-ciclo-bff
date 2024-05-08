@@ -5,18 +5,18 @@ import { User } from '../../user/entities/user.entity';
 @Entity()
 export class Profile extends IdTimestampBaseEntity {
   @Column({ type: 'integer', nullable: true })
-  height: number;
+  height?: number;
 
   @Column({ type: 'double precision', nullable: true })
-  weight: number;
+  weight?: number;
 
   @Column({ default: true })
-  isMenstrualCycleRegular: boolean;
+  isMenstrualCycleRegular?: boolean;
 
   @Column({ nullable: true })
-  menstrualCycleDuration: number;
+  menstrualCycleDuration?: number;
 
-  @Column()
+  @Column({ unique: true })
   userId: number;
 
   @OneToOne(() => User)

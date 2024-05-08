@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { MenstrualPeriodModule } from './modules/menstrual-period/menstrual-period.module';
 import { UserModule } from './modules/user/user.module';
 import { VerificationCodeModule } from './modules/verification-code/verification-code.module';
+import { ProfileModule } from './modules/profile/profile.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { VerificationCodeModule } from './modules/verification-code/verification
     AuthModule,
     VerificationCodeModule,
     MenstrualPeriodModule,
+    ProfileModule,
   ],
   controllers: [],
   providers: [DatabaseSeederService],
