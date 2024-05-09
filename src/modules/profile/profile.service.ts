@@ -41,4 +41,8 @@ export class ProfileService {
 
     return { profileId: response.identifiers[0].id };
   }
+
+  async findOne(userId: number) {
+    return this.profileRepository.findOne({ where: { userId } });
+  }
 }
