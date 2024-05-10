@@ -1,6 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
+  CustomForbiddenException,
   CustomNotFoundException,
   CustomUnauthorizedException,
 } from '../../shared/exceptions/http-exception';
@@ -11,6 +12,7 @@ import { UserService } from '../user/user.service';
 import { VerificationCodeService } from '../verification-code/verification-code.service';
 import { LoginDto } from './dtos/login.dto';
 import { VerificationCodeValidationDto } from './dtos/verification-code-validation.dto';
+import { JwtPayload } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -56,6 +58,32 @@ export class AuthService {
     delete user.password;
 
     return { user, token };
+  }
+
+  refreshToken(refreshToken: string) {
+    const { sub: accessToken } = this.tokenService.verify(
+      refreshToken,
+    ) as JwtPayload;
+
+    if (!accessToken) {
+      throw new CustomForbiddenException({
+        code: 'invalid-refresh-token',
+        message: 'Invalid refresh token',
+      });
+    }
+
+    const {
+      sub: { userId, email },
+    } = this.tokenService.decode(accessToken);
+
+    if (!userId) {
+      throw new CustomForbiddenException({
+        code: 'invalid-refresh-token',
+        message: 'Invalid refresh token',
+      });
+    }
+
+    return this.tokenService.createPair({ userId, email });
   }
 
   async requestPasswordReset(email: string) {
