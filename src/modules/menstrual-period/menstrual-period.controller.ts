@@ -7,6 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { CustomNotFoundException } from '../../shared/exceptions/http-exception';
 import { CreateMenstrualPeriodDto } from './dtos/create-menstrual-period.dto';
 import { MenstrualPeriodService } from './menstrual-period.service';
 
@@ -27,9 +28,14 @@ export class MenstrualPeriodController {
   @UseGuards(AuthGuard('jwt'))
   async getLastMenstrualPeriod(@Request() req: any) {
     const user = req.user;
-    const lastPeriod = await this.menstrualPeriodService.getLastPeriod(user.id);
+    const lastPeriod = await this.menstrualPeriodService.getLastByUserId(
+      user.id,
+    );
     if (!lastPeriod) {
-      return 'none found';
+      throw new CustomNotFoundException({
+        code: 'not-found',
+        message: 'None found',
+      });
     }
     return lastPeriod;
   }

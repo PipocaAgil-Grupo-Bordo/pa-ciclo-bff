@@ -12,7 +12,7 @@ export class MenstrualPeriodService {
     return this.menstrualPeriodRepository.save(menstrualPeriod);
   }
 
-  async getLastMenstrualPeriod(): Promise<MenstrualPeriod | undefined> {
-    return await this.menstrualPeriodRepository.getLastMenstrualPeriod();
+  async getLastByUserId(userId: number): Promise<MenstrualPeriod | undefined> {
+    return this.menstrualPeriodRepository.getLastMenstrualPeriod(userId);
   }
 }
