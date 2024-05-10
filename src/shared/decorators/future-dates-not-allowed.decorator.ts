@@ -16,6 +16,10 @@ export function IsNotFutureDate(validationOptions?: ValidationOptions) {
           const currentDate = new Date();
           const inputDate = new Date(value);
 
+          if (isNaN(inputDate.getTime())) {
+            return false;
+          }
+
           return inputDate <= currentDate;
         },
         defaultMessage(args: ValidationArguments) {
