@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { JwtPayload } from 'jsonwebtoken';
 
 @Injectable()
 export class TokenService {
@@ -12,7 +13,10 @@ export class TokenService {
   create(sub: Record<string, unknown> | string, options: JwtSignOptions = {}) {
     options.expiresIn = options.expiresIn ?? this.defaultAccessTokenExpiresIn;
 
-    return this.jwtService.sign({ sub }, options);
+    return this.jwtService.sign(
+      { sub },
+      { ...options, secret: process.env.TOKEN_SECRET },
+    );
   }
 
   createPair(sub: Record<string, unknown> | string) {
@@ -29,9 +33,17 @@ export class TokenService {
 
   decode(token: string): any {
     try {
-      return this.jwtService.verify(token);
+      return this.jwtService.decode(token);
     } catch (error) {
       return null;
+    }
+  }
+
+  verify(token: string): string | JwtPayload {
+    try {
+      return this.jwtService.verify(token);
+    } catch {
+      throw new ForbiddenException();
     }
   }
 }

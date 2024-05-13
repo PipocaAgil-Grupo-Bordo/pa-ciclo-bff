@@ -11,6 +11,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { VerificationCodeService } from '../verification-code/verification-code.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
+import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { ResetPasswordRequestDto } from './dtos/reset-password-request.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { VerificationCodeValidationDto } from './dtos/verification-code-validation.dto';
@@ -50,5 +51,10 @@ export class AuthController {
   @Post('reset-password/validate')
   async validateVerificationCode(@Body() body: VerificationCodeValidationDto) {
     return await this.authService.validateVerificationCode(body);
+  }
+
+  @Post('refresh-token')
+  refreshToken(@Body() { refreshToken }: RefreshTokenDto) {
+    return this.authService.refreshToken(refreshToken);
   }
 }
