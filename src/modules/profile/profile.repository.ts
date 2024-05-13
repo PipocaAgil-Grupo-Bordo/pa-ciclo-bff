@@ -7,8 +7,4 @@ export class ProfileRepository extends Repository<Profile> {
   constructor(private dataSource: DataSource) {
     super(Profile, dataSource.createEntityManager());
   }
-
-  async findOneByUserId(userId: number): Promise<Profile> {
-    return this.findOne({ where: { userId } });
-  }
 }
