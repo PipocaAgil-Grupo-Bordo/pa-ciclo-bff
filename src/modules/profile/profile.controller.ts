@@ -25,11 +25,6 @@ export class ProfileController {
   @UseGuards(AuthGuard('jwt'))
   async getProfile(@Request() req) {
     const user = req.user;
-    const profile = await this.profileService.findOne(user.id);
-    if (profile === undefined || profile === null) {
-      return { message: 'Profile not found' };
-    } else {
-      return profile;
-    }
+    return this.profileService.findOne(user.id);
   }
 }
