@@ -41,4 +41,12 @@ export class ProfileService {
 
     return { profileId: response.identifiers[0].id };
   }
+
+  async findOne(userId: number) {
+    const profile = await this.profileRepository.findOne({ where: { userId } });
+    if (!profile) {
+      throw new NotFoundException('Profile not found');
+    }
+    return profile;
+  }
 }
