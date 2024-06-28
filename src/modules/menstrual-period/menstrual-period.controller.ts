@@ -9,6 +9,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { CreateMenstrualPeriodDto } from './dtos/create-menstrual-period.dto';
 import { MenstrualPeriodService } from './menstrual-period.service';
+import { CreateMenstrualPeriodDateDto } from './dtos/create-menstrual-date.dto';
 
 @Controller('menstrual-period')
 export class MenstrualPeriodController {
@@ -31,5 +32,12 @@ export class MenstrualPeriodController {
       user.id,
     );
     return lastPeriod;
+  }
+
+  @Post('date')
+  @UseGuards(AuthGuard('jwt'))
+  createDate(@Request() req: any, @Body() body: CreateMenstrualPeriodDateDto) {
+    const user = req.user;
+    return this.menstrualPeriodService.createDate(body, user.id);
   }
 }

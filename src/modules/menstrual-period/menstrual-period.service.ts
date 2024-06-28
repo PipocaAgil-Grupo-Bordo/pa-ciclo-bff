@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { CustomNotFoundException } from '../../shared/exceptions/http-exception';
+import { CreateMenstrualPeriodDateDto } from './dtos/create-menstrual-date.dto';
 import { CreateMenstrualPeriodDto } from './dtos/create-menstrual-period.dto';
 import { MenstrualPeriod } from './entities/menstrual-period.entity';
+import { MenstrualPeriodDateRepository } from './menstrual-period-date.repository';
 import { MenstrualPeriodRepository } from './menstrual-period.repository';
 
 @Injectable()
 export class MenstrualPeriodService {
-  constructor(private menstrualPeriodRepository: MenstrualPeriodRepository) {}
+  constructor(
+    private menstrualPeriodRepository: MenstrualPeriodRepository,
+    private menstrualPeriodDateRepository: MenstrualPeriodDateRepository,
+  ) {}
 
   async create(body: CreateMenstrualPeriodDto, userId: number) {
     const menstrualPeriod = { ...body, userId };
@@ -23,5 +28,42 @@ export class MenstrualPeriodService {
       });
     }
     return lastPeriod;
+  }
+
+  async createDate(body: CreateMenstrualPeriodDateDto, userId: number) {
+    const now = new Date();
+    let shouldCreateMenstrualPeriod = false;
+    let menstrualPeriodId: number;
+
+    const lastPeriod =
+      await this.menstrualPeriodRepository.getLastMenstrualPeriod(userId);
+
+    if (!lastPeriod) {
+      shouldCreateMenstrualPeriod = true;
+    } else {
+      menstrualPeriodId = lastPeriod.id;
+      const lastPeriodDate = new Date(lastPeriod.lastDate);
+      const differenceInTime = now.getTime() - lastPeriodDate.getTime();
+      const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+
+      if (differenceInDays >= 2) {
+        shouldCreateMenstrualPeriod = true;
+      }
+    }
+
+    if (shouldCreateMenstrualPeriod) {
+      const newPeriod = await this.menstrualPeriodRepository.save({
+        startedAt: now,
+        lastDate: now,
+        userId,
+      });
+
+      menstrualPeriodId = newPeriod.id;
+    }
+
+    return this.menstrualPeriodDateRepository.save({
+      ...body,
+      menstrualPeriodId,
+    });
   }
 }
