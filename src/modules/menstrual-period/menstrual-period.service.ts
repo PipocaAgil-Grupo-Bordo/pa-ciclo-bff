@@ -32,30 +32,38 @@ export class MenstrualPeriodService {
 
   async createDate(body: CreateMenstrualPeriodDateDto, userId: number) {
     const now = new Date();
+    let shouldCreateMenstrualPeriod = false;
+    let menstrualPeriodId: number;
 
     const lastPeriod =
       await this.menstrualPeriodRepository.getLastMenstrualPeriod(userId);
 
-    const lastPeriodDate = new Date(lastPeriod.lastDate);
-    const differenceInTime = now.getTime() - lastPeriodDate.getTime();
-    const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+    if (!lastPeriod) {
+      shouldCreateMenstrualPeriod = true;
+    } else {
+      menstrualPeriodId = lastPeriod.id;
+      const lastPeriodDate = new Date(lastPeriod.lastDate);
+      const differenceInTime = now.getTime() - lastPeriodDate.getTime();
+      const differenceInDays = differenceInTime / (1000 * 3600 * 24);
 
-    if (!lastPeriod || differenceInDays >= 2) {
+      if (differenceInDays >= 2) {
+        shouldCreateMenstrualPeriod = true;
+      }
+    }
+
+    if (shouldCreateMenstrualPeriod) {
       const newPeriod = await this.menstrualPeriodRepository.save({
         startedAt: now,
         lastDate: now,
         userId,
       });
 
-      return this.menstrualPeriodDateRepository.save({
-        ...body,
-        menstrualPeriodId: newPeriod.id,
-      });
+      menstrualPeriodId = newPeriod.id;
     }
 
     return this.menstrualPeriodDateRepository.save({
       ...body,
-      menstrualPeriodId: lastPeriod.id,
+      menstrualPeriodId,
     });
   }
 }
