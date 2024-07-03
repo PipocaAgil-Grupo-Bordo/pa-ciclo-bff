@@ -35,18 +35,24 @@ export class MenstrualPeriodService {
     let shouldCreateMenstrualPeriod = false;
     let menstrualPeriodId: number;
 
-    const lastPeriod =
-      await this.menstrualPeriodRepository.getLastMenstrualPeriod(userId);
+    const closestPeriod =
+      await this.menstrualPeriodRepository.findClosestPeriod(body.date);
 
-    if (!lastPeriod) {
+    if (!closestPeriod) {
       shouldCreateMenstrualPeriod = true;
     } else {
-      menstrualPeriodId = lastPeriod.id;
-      const lastPeriodDate = new Date(lastPeriod.lastDate);
-      const differenceInTime = now.getTime() - lastPeriodDate.getTime();
+      menstrualPeriodId = closestPeriod.id;
+
+      const closestPeriodDate = this.toLocalDate(
+        new Date(closestPeriod.lastDate),
+      );
+
+      const bodyDate = this.toLocalDate(new Date(body.date));
+
+      const differenceInTime = bodyDate.getTime() - closestPeriodDate.getTime();
       const differenceInDays = differenceInTime / (1000 * 3600 * 24);
 
-      if (differenceInDays >= 2) {
+      if (differenceInDays > 3) {
         shouldCreateMenstrualPeriod = true;
       }
     }
@@ -61,9 +67,19 @@ export class MenstrualPeriodService {
       menstrualPeriodId = newPeriod.id;
     }
 
+    const newLastDate = new Date(body.date);
+
+    await this.menstrualPeriodRepository.update(menstrualPeriodId, {
+      lastDate: this.toLocalDate(newLastDate),
+    });
+
     return this.menstrualPeriodDateRepository.save({
       ...body,
       menstrualPeriodId,
     });
+  }
+
+  toLocalDate(date: Date) {
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
   }
 }
