@@ -2,9 +2,17 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This is the API for the Ciclo Ágil App.
 
 ## Installation
+
+1. Clone the repository:
+
+```bash
+$ git clone https://github.com/PipocaAgil-Grupo-Bordo/pa-ciclo-bff.git
+$ cd pa-ciclo-bff
+```
+2. Install dependencies:
 
 ```bash
 $ npm install
@@ -13,38 +21,31 @@ $ npm install
 ## Running the app
 
 ```bash
-# development
-$ npm run start
-
 # watch mode
 $ npm run dev
-
-# production mode
-$ yarn run start:prod
 ```
+
+## Configuration
+
+Create a .env file and add the necessary environment variables. Check the .env.example
+
 
 ## Test
 
 ```bash
 # unit tests
-$ yarn run test
+$ npm run test
 
 # e2e tests
-$ yarn run test:e2e
+$ npm run test:e2e
 
 # test coverage
-$ yarn run test:cov
+$ npm run test:cov
 ```
 
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
 ## License
 
