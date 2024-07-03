@@ -18,17 +18,16 @@ $ cd pa-ciclo-bff
 $ npm install
 ```
 
+## Configuration
+
+Create a .env file and add the necessary environment variables. Check the .env.example
+
 ## Running the app
 
 ```bash
 # watch mode
 $ npm run dev
 ```
-
-## Configuration
-
-Create a .env file and add the necessary environment variables. Check the .env.example
-
 
 ## Test
 
