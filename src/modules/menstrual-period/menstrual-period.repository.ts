@@ -19,10 +19,6 @@ export class MenstrualPeriodRepository extends Repository<MenstrualPeriod> {
 
   findClosestPeriod(date: string) {
     const comparingDate = new Date(date);
-    console.log(
-      'Data usada como referencia para buscar o período mais próximo:',
-      comparingDate,
-    );
 
     return this.createQueryBuilder('menstrual_period')
       .where('menstrual_period.lastDate <= :comparingDate', { comparingDate })

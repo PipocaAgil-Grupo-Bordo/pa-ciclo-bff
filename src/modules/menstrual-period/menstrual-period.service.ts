@@ -67,13 +67,7 @@ export class MenstrualPeriodService {
       menstrualPeriodId = newPeriod.id;
     }
 
-    const newLastDate = new Date(body.date);
-
-    await this.menstrualPeriodRepository.update(menstrualPeriodId, {
-      lastDate: this.toLocalDate(newLastDate),
-    });
-
-    return this.menstrualPeriodDateRepository.save({
+    return this.menstrualPeriodDateRepository.insertDate({
       ...body,
       menstrualPeriodId,
     });
