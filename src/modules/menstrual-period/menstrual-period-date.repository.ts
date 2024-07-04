@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { MenstrualPeriodDate } from './entities/menstrual-period-date.entity';
 import { MenstrualPeriodRepository } from './menstrual-period.repository';
+import { parseISO } from 'date-fns';
 
 @Injectable()
 export class MenstrualPeriodDateRepository extends Repository<MenstrualPeriodDate> {
@@ -25,7 +26,7 @@ export class MenstrualPeriodDateRepository extends Repository<MenstrualPeriodDat
       await this.menstrualPeriodRepository.update(
         periodDate.menstrualPeriodId,
         {
-          lastDate: this.toLocalDate(new Date(periodDate.date)),
+          lastDate: parseISO(periodDate.date),
         },
       );
 
@@ -39,7 +40,14 @@ export class MenstrualPeriodDateRepository extends Repository<MenstrualPeriodDat
     }
   }
 
-  toLocalDate(date: Date) {
-    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  async findByPeriodIdAndDate(menstrualPeriodId: number, date: Date) {
+    return this.createQueryBuilder('menstrual_period_date')
+      .where('menstrual_period_date.menstrualPeriodId = :menstrualPeriodId', {
+        menstrualPeriodId,
+      })
+      .andWhere('DATE(menstrual_period_date.date) = DATE(:date)', {
+        date: date.toISOString().split('T')[0],
+      })
+      .getOne();
   }
 }
