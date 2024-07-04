@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CustomNotFoundException } from '../../shared/exceptions/http-exception';
+import { parseISO } from 'date-fns';
+import {
+  CustomConflictException,
+  CustomNotFoundException,
+} from '../../shared/exceptions/http-exception';
 import { CreateMenstrualPeriodDateDto } from './dtos/create-menstrual-date.dto';
 import { CreateMenstrualPeriodDto } from './dtos/create-menstrual-period.dto';
 import { MenstrualPeriod } from './entities/menstrual-period.entity';
@@ -34,19 +38,26 @@ export class MenstrualPeriodService {
     const now = new Date();
     let shouldCreateMenstrualPeriod = false;
     let menstrualPeriodId: number;
+    const bodyDate = parseISO(body.date);
 
-    const lastPeriod =
-      await this.menstrualPeriodRepository.getLastMenstrualPeriod(userId);
+    const closestPeriod =
+      await this.menstrualPeriodRepository.findClosestPeriod(
+        bodyDate.toISOString(),
+      );
 
-    if (!lastPeriod) {
+    if (!closestPeriod) {
       shouldCreateMenstrualPeriod = true;
     } else {
-      menstrualPeriodId = lastPeriod.id;
-      const lastPeriodDate = new Date(lastPeriod.lastDate);
-      const differenceInTime = now.getTime() - lastPeriodDate.getTime();
+      menstrualPeriodId = closestPeriod.id;
+
+      const closestPeriodDate = this.toLocalDate(
+        new Date(closestPeriod.lastDate),
+      );
+
+      const differenceInTime = bodyDate.getTime() - closestPeriodDate.getTime();
       const differenceInDays = differenceInTime / (1000 * 3600 * 24);
 
-      if (differenceInDays >= 2) {
+      if (differenceInDays > 3) {
         shouldCreateMenstrualPeriod = true;
       }
     }
@@ -61,9 +72,27 @@ export class MenstrualPeriodService {
       menstrualPeriodId = newPeriod.id;
     }
 
-    return this.menstrualPeriodDateRepository.save({
+    const existingDate =
+      await this.menstrualPeriodDateRepository.findByPeriodIdAndDate(
+        menstrualPeriodId,
+        bodyDate,
+      );
+
+    if (existingDate) {
+      throw new CustomConflictException({
+        code: 'date-already-added',
+        message: 'This date was already added.',
+      });
+    }
+
+    return this.menstrualPeriodDateRepository.insertDate({
       ...body,
       menstrualPeriodId,
+      date: body.date,
     });
+  }
+
+  toLocalDate(date: Date) {
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
   }
 }

@@ -11,9 +11,18 @@ export class MenstrualPeriodRepository extends Repository<MenstrualPeriod> {
   async getLastMenstrualPeriod(
     userId: number,
   ): Promise<MenstrualPeriod | undefined> {
-    return await this.createQueryBuilder('menstrual_period')
+    return this.createQueryBuilder('menstrual_period')
       .where('menstrual_period.userId = :userId', { userId })
       .orderBy('menstrual_period.startedAt', 'DESC')
+      .getOne();
+  }
+
+  findClosestPeriod(date: string) {
+    const comparingDate = new Date(date);
+
+    return this.createQueryBuilder('menstrual_period')
+      .where('menstrual_period.lastDate <= :comparingDate', { comparingDate })
+      .orderBy('menstrual_period.lastDate', 'DESC')
       .getOne();
   }
 }
