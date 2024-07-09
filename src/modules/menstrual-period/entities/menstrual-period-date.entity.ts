@@ -4,12 +4,12 @@ import { MenstrualPeriod } from './menstrual-period.entity';
 
 @Entity()
 export class MenstrualPeriodDate extends IdTimestampBaseEntity {
-  @Column({ type: 'date' })
-  date: Date;
+    @Column({ type: 'date' })
+    date: Date;
 
-  @Column()
-  menstrualPeriodId: number;
+    @Column()
+    menstrualPeriodId: number;
 
-  @ManyToOne(() => MenstrualPeriod, (menstrualPeriod) => menstrualPeriod.dates)
-  menstrualPeriod: MenstrualPeriod;
+    @ManyToOne(() => MenstrualPeriod, (menstrualPeriod) => menstrualPeriod.dates)
+    menstrualPeriod: MenstrualPeriod;
 }

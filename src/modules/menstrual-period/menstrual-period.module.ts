@@ -9,17 +9,9 @@ import { MenstrualPeriodRepository } from './menstrual-period.repository';
 import { MenstrualPeriodService } from './menstrual-period.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([MenstrualPeriod]),
-    EncryptionModule,
-    EmailModule,
-  ],
-  exports: [MenstrualPeriodService],
-  controllers: [MenstrualPeriodController],
-  providers: [
-    MenstrualPeriodService,
-    MenstrualPeriodRepository,
-    MenstrualPeriodDateRepository,
-  ],
+    imports: [TypeOrmModule.forFeature([MenstrualPeriod]), EncryptionModule, EmailModule],
+    exports: [MenstrualPeriodService],
+    controllers: [MenstrualPeriodController],
+    providers: [MenstrualPeriodService, MenstrualPeriodRepository, MenstrualPeriodDateRepository],
 })
 export class MenstrualPeriodModule {}
