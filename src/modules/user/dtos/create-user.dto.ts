@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 import { LettersOnly } from '../../../shared/decorators/letters-only.decorator';
@@ -12,6 +13,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(2)
+  @MaxLength(15)
   @LettersOnly()
   name: string;
 

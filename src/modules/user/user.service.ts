@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CustomConflictException } from '../../shared/exceptions/http-exception';
 import { EmailService } from '../../shared/services/email/email.service';
 import { EncryptionService } from '../../shared/services/encryption/encryption.service';
+import { AuthService } from '../auth/auth.service';
+import { ProfileService } from '../profile/profile.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './entities/user.entity';
@@ -10,9 +12,12 @@ import { UserRepository } from './user.repository';
 @Injectable()
 export class UserService {
   constructor(
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
     private userRepository: UserRepository,
     private encryptionService: EncryptionService,
     private emailService: EmailService,
+    private profileService: ProfileService,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -61,9 +66,12 @@ export class UserService {
 
     const newUser = await this.userRepository.save(user);
 
-    delete newUser.password;
+    await this.profileService.create({ userId: newUser.id });
 
-    return newUser;
+    return this.authService.login({
+      email: user.email,
+      password,
+    });
   }
 
   async update(id: number, user: UpdateUserDto) {
