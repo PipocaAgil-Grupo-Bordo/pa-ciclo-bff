@@ -8,6 +8,10 @@ export class MenstrualPeriodRepository extends Repository<MenstrualPeriod> {
         super(MenstrualPeriod, dataSource.createEntityManager());
     }
 
+    async getMenstrualPeriods(year: string, month: string): Promise<MenstrualPeriod | undefined> {
+        return 
+    }
+
     async getLastMenstrualPeriod(userId: number): Promise<MenstrualPeriod | undefined> {
         return this.createQueryBuilder('menstrual_period')
             .where('menstrual_period.userId = :userId', { userId })

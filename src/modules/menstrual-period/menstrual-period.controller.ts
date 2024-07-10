@@ -15,6 +15,12 @@ export class MenstrualPeriodController {
         return this.menstrualPeriodService.create(body, user.id);
     }
 
+    @Get()
+    @UseGuards(AuthGuard('jwt'))
+    async getMenstrualPeriods(@Query('year') year: string, @Query('month') month: string) {
+        return this.menstrualPeriodService.getByDate(year, month);
+    }
+
     @Get('last')
     @UseGuards(AuthGuard('jwt'))
     async getLastMenstrualPeriod(@Request() req: any) {

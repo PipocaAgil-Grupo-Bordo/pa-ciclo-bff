@@ -22,6 +22,10 @@ export class MenstrualPeriodService {
         return this.menstrualPeriodRepository.save(menstrualPeriod);
     }
 
+    async getByDate(year: string, month: string) {
+        return this.menstrualPeriodRepository.getMenstrualPeriods(year, month);
+    }
+
     async getLastByUserId(userId: number): Promise<MenstrualPeriod | undefined> {
         const lastPeriod = await this.menstrualPeriodRepository.getLastMenstrualPeriod(userId);
         if (!lastPeriod) {
