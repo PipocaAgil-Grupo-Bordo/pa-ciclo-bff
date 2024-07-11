@@ -13,7 +13,7 @@ export function IsNotFutureDate(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value: any) {
-          const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
+          const iso8601Regex = /^\d{4}-\d{2}-\d{2}$/;
           const currentDate = new Date();
           const inputDate = new Date(value);
 
