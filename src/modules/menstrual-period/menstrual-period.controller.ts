@@ -17,8 +17,9 @@ export class MenstrualPeriodController {
 
     @Get()
     @UseGuards(AuthGuard('jwt'))
-    async getMenstrualPeriods(@Query('year') year: string, @Query('month') month: string) {
-        return this.menstrualPeriodService.getByDate(year, month);
+    async getMenstrualPeriods(@Request() req: any, @Query('year') year: string, @Query('month') month?: string) {
+        const user = req.user;
+        return this.menstrualPeriodService.getByDate(user.id, year, month);
     }
 
     @Get('last')

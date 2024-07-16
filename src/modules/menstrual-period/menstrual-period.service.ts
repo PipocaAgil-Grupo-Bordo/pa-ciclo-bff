@@ -22,8 +22,8 @@ export class MenstrualPeriodService {
         return this.menstrualPeriodRepository.save(menstrualPeriod);
     }
 
-    async getByDate(year: string, month: string) {
-        return this.menstrualPeriodRepository.getMenstrualPeriods(year, month);
+    async getByDate(userId: number, year: string, month?: string) {
+        return this.menstrualPeriodRepository.getMenstrualPeriods(userId, year, month);
     }
 
     async getLastByUserId(userId: number): Promise<MenstrualPeriod | undefined> {
@@ -43,28 +43,51 @@ export class MenstrualPeriodService {
         let menstrualPeriodId: number;
         const bodyDate = parseISO(body.date);
 
-        const closestPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
+        const closestPreviousPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
             bodyDate.toISOString(),
         );
 
-        if (!closestPeriod) {
-            shouldCreateMenstrualPeriod = true;
-        } else {
-            menstrualPeriodId = closestPeriod.id;
+        const nextPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
+            bodyDate.toISOString(),
+            'future',
+        );
 
-            const closestPeriodDate = this.toLocalDate(new Date(closestPeriod.lastDate));
+        let daysUntillNextPeriod: number;
 
-            const differenceInTime = bodyDate.getTime() - closestPeriodDate.getTime();
-            const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+        if (nextPeriod) {
+            const nextPeriodDate = this.toLocalDate(new Date(nextPeriod.lastDate));
 
-            if (differenceInDays > 3) {
+            const differenceInTime = nextPeriodDate.getTime() - bodyDate.getTime();
+            daysUntillNextPeriod = differenceInTime / (1000 * 3600 * 24);
+
+            if (daysUntillNextPeriod <= 3) {
+                shouldCreateMenstrualPeriod = false;
+                menstrualPeriodId = nextPeriod.id;
+
+                this.menstrualPeriodRepository.update(menstrualPeriodId, { startedAt: bodyDate });
+            }
+        }
+
+        if(!nextPeriod || daysUntillNextPeriod > 3) {
+            if (!closestPreviousPeriod) {
                 shouldCreateMenstrualPeriod = true;
+            } else {
+                menstrualPeriodId = closestPreviousPeriod.id;
+
+                const closestPeriodDate = this.toLocalDate(new Date(closestPreviousPeriod.lastDate));
+
+                const differenceInTime = bodyDate.getTime() - closestPeriodDate.getTime();
+                const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+
+                if (differenceInDays > 3) {
+                    shouldCreateMenstrualPeriod = true;
+                }
             }
         }
 
         if (shouldCreateMenstrualPeriod) {
             const newPeriod = await this.menstrualPeriodRepository.save({
-                startedAt: now,
+                startedAt: bodyDate,
                 lastDate: now,
                 userId,
             });
