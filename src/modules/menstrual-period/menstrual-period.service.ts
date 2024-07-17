@@ -95,4 +95,8 @@ export class MenstrualPeriodService {
   toLocalDate(date: Date) {
     return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
   }
+
+  async deleteDate(id: number) {
+    await this.menstrualPeriodDateRepository.delete({ id });
+  }
 }
