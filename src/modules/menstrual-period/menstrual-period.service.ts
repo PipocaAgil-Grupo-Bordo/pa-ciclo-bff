@@ -97,6 +97,19 @@ export class MenstrualPeriodService {
   }
 
   async deleteDate(id: number) {
-    await this.menstrualPeriodDateRepository.delete({ id });
+    let dateRepository = await this.menstrualPeriodDateRepository.findOneBy({
+      id,
+    });
+    if (dateRepository) {
+      await this.menstrualPeriodDateRepository.delete({ id });
+      return {
+        code: 'success',
+      };
+    } else {
+      throw new CustomConflictException({
+        code: 'date-id-not-not-exists',
+        message: 'This date not exists',
+      });
+    }
   }
 }
