@@ -18,130 +18,43 @@ export class MenstrualPeriodService {
         private menstrualPeriodDateRepository: MenstrualPeriodDateRepository,
     ) {}
 
-  async create(body: CreateMenstrualPeriodDto, userId: number) {
-    const menstrualPeriod = { ...body, userId };
-    return this.menstrualPeriodRepository.save(menstrualPeriod);
-  }
-
-  async getByDate(userId: number, year: string, month?: string) {
-    return this.menstrualPeriodRepository.getMenstrualPeriods(userId, year, month);
-  }
-
-  async getLastByUserId(userId: number): Promise<MenstrualPeriod | undefined> {
-    const lastPeriod =
-      await this.menstrualPeriodRepository.getLastMenstrualPeriod(userId);
-    if (!lastPeriod) {
-      throw new CustomNotFoundException({
-        code: 'not-found',
-        message: 'No menstrual period found for this user',
-      });
+    async create(body: CreateMenstrualPeriodDto, userId: number) {
+        const menstrualPeriod = { ...body, userId };
+        return this.menstrualPeriodRepository.save(menstrualPeriod);
     }
-    return lastPeriod;
-  }
 
-  async createDate(body: CreateMenstrualPeriodDateDto, userId: number) {
-    const now = new Date();
-    let shouldCreateMenstrualPeriod = false;
-    let menstrualPeriodId: number;
-    const bodyDate = parseISO(body.date);
-
-    try {
-      const closestPeriod =
-        await this.menstrualPeriodRepository.findClosestPeriod(
-          bodyDate.toISOString(),
-        );
-
-      if (!closestPeriod) {
-        shouldCreateMenstrualPeriod = true;
-      } else {
-        menstrualPeriodId = closestPeriod.id;
-
-        const closestPeriodDate = this.toLocalDate(
-          new Date(closestPeriod.lastDate),
-        );
-
-        const differenceInTime =
-          bodyDate.getTime() - closestPeriodDate.getTime();
-        const differenceInDays = differenceInTime / (1000 * 3600 * 24);
-
-        if (differenceInDays > 3) {
-          shouldCreateMenstrualPeriod = true;
-        }
-      }
-
-      if (shouldCreateMenstrualPeriod) {
-        const newPeriod = await this.menstrualPeriodRepository.save({
-          startedAt: now,
-          lastDate: now,
-          userId,
-        });
-
-        menstrualPeriodId = newPeriod.id;
-      }
-
-      const existingDate =
-        await this.menstrualPeriodDateRepository.findByPeriodIdAndDate(
-          menstrualPeriodId,
-          bodyDate,
-        );
-
-      if (existingDate) {
-        throw new CustomConflictException({
-          code: 'date-already-added',
-          message: 'This date was already added.',
-        });
-      }
-
-      return this.menstrualPeriodDateRepository.insertDate({
-        ...body,
-        menstrualPeriodId,
-        date: body.date,
-      });
-    } catch (err) {
-      if (err.message === 'Invalid time value') {
-        throw new CustomBadRequestException({
-          code: 'invalid-time-value',
-          message:
-            'Invalid time value. Please provide a valid ISO 8601 date string.',
-        });
-      }
-
-      throw err;
+    async getByDate(userId: number, year: string, month?: string) {
+        return this.menstrualPeriodRepository.getMenstrualPeriods(userId, year, month);
     }
-  }
 
-        const closestPreviousPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
-            bodyDate.toISOString(),
-        );
-
-        const nextPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
-            bodyDate.toISOString(),
-            'future',
-        );
-
-        let daysUntillNextPeriod: number;
-
-        if (nextPeriod) {
-            const nextPeriodDate = this.toLocalDate(new Date(nextPeriod.lastDate));
-
-            const differenceInTime = nextPeriodDate.getTime() - bodyDate.getTime();
-            daysUntillNextPeriod = differenceInTime / (1000 * 3600 * 24);
-
-            if (daysUntillNextPeriod <= 3) {
-                shouldCreateMenstrualPeriod = false;
-                menstrualPeriodId = nextPeriod.id;
-
-                this.menstrualPeriodRepository.update(menstrualPeriodId, { startedAt: bodyDate });
-            }
+    async getLastByUserId(userId: number): Promise<MenstrualPeriod | undefined> {
+        const lastPeriod = await this.menstrualPeriodRepository.getLastMenstrualPeriod(userId);
+        if (!lastPeriod) {
+            throw new CustomNotFoundException({
+                code: 'not-found',
+                message: 'No menstrual period found for this user',
+            });
         }
+        return lastPeriod;
+    }
 
-        if(!nextPeriod || daysUntillNextPeriod > 3) {
-            if (!closestPreviousPeriod) {
+    async createDate(body: CreateMenstrualPeriodDateDto, userId: number) {
+        const now = new Date();
+        let shouldCreateMenstrualPeriod = false;
+        let menstrualPeriodId: number;
+        const bodyDate = parseISO(body.date);
+
+        try {
+            const closestPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
+                bodyDate.toISOString(),
+            );
+
+            if (!closestPeriod) {
                 shouldCreateMenstrualPeriod = true;
             } else {
-                menstrualPeriodId = closestPreviousPeriod.id;
+                menstrualPeriodId = closestPeriod.id;
 
-                const closestPeriodDate = this.toLocalDate(new Date(closestPreviousPeriod.lastDate));
+                const closestPeriodDate = this.toLocalDate(new Date(closestPeriod.lastDate));
 
                 const differenceInTime = bodyDate.getTime() - closestPeriodDate.getTime();
                 const differenceInDays = differenceInTime / (1000 * 3600 * 24);
@@ -150,35 +63,44 @@ export class MenstrualPeriodService {
                     shouldCreateMenstrualPeriod = true;
                 }
             }
-        }
 
-        if (shouldCreateMenstrualPeriod) {
-            const newPeriod = await this.menstrualPeriodRepository.save({
-                startedAt: bodyDate,
-                lastDate: now,
-                userId,
+            if (shouldCreateMenstrualPeriod) {
+                const newPeriod = await this.menstrualPeriodRepository.save({
+                    startedAt: now,
+                    lastDate: now,
+                    userId,
+                });
+
+                menstrualPeriodId = newPeriod.id;
+            }
+
+            const existingDate = await this.menstrualPeriodDateRepository.findByPeriodIdAndDate(
+                menstrualPeriodId,
+                bodyDate,
+            );
+
+            if (existingDate) {
+                throw new CustomConflictException({
+                    code: 'date-already-added',
+                    message: 'This date was already added.',
+                });
+            }
+
+            return this.menstrualPeriodDateRepository.insertDate({
+                ...body,
+                menstrualPeriodId,
+                date: body.date,
             });
+        } catch (err) {
+            if (err.message === 'Invalid time value') {
+                throw new CustomBadRequestException({
+                    code: 'invalid-time-value',
+                    message: 'Invalid time value. Please provide a valid ISO 8601 date string.',
+                });
+            }
 
-            menstrualPeriodId = newPeriod.id;
+            throw err;
         }
-
-        const existingDate = await this.menstrualPeriodDateRepository.findByPeriodIdAndDate(
-            menstrualPeriodId,
-            bodyDate,
-        );
-
-        if (existingDate) {
-            throw new CustomConflictException({
-                code: 'date-already-added',
-                message: 'This date was already added.',
-            });
-        }
-
-        return this.menstrualPeriodDateRepository.insertDate({
-            ...body,
-            menstrualPeriodId,
-            date: body.date,
-        });
     }
 
     toLocalDate(date: Date) {
