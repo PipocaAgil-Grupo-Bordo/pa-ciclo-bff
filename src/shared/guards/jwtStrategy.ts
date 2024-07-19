@@ -6,27 +6,27 @@ import { CustomBadRequestException } from '../exceptions/http-exception';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly usersService: UserService) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: process.env.TOKEN_SECRET,
-    });
-  }
-
-  async validate(payload: any): Promise<any> {
-    if (!payload.sub.email) {
-      throw new CustomBadRequestException({
-        code: 'authorization-header-required',
-        message: 'An authorization header is required',
-      });
+    constructor(private readonly usersService: UserService) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ignoreExpiration: false,
+            secretOrKey: process.env.TOKEN_SECRET,
+        });
     }
 
-    const user = await this.usersService.findByEmail(payload.sub.email);
+    async validate(payload: any): Promise<any> {
+        if (!payload.sub.email) {
+            throw new CustomBadRequestException({
+                code: 'authorization-header-required',
+                message: 'An authorization header is required',
+            });
+        }
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid token');
+        const user = await this.usersService.findByEmail(payload.sub.email);
+
+        if (!user) {
+            throw new UnauthorizedException('Invalid token');
+        }
+        return user;
     }
-    return user;
-  }
 }

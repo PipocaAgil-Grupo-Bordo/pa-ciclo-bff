@@ -6,9 +6,9 @@ import { ProfileRepository } from './profile.repository';
 import { ProfileService } from './profile.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Profile])],
-  exports: [ProfileService],
-  controllers: [ProfileController],
-  providers: [ProfileService, ProfileRepository],
+    imports: [TypeOrmModule.forFeature([Profile])],
+    exports: [ProfileService],
+    controllers: [ProfileController],
+    providers: [ProfileService, ProfileRepository],
 })
 export class ProfileModule {}

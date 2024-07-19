@@ -7,78 +7,75 @@ import { VerificationCodeRepository } from './verification-code.repository';
 
 @Injectable()
 export class VerificationCodeService {
-  constructor(
-    private readonly verificationCodeRepository: VerificationCodeRepository,
-    @Inject(forwardRef(() => UserService))
-    private readonly userService: UserService,
-  ) {}
+    constructor(
+        private readonly verificationCodeRepository: VerificationCodeRepository,
+        @Inject(forwardRef(() => UserService))
+        private readonly userService: UserService,
+    ) {}
 
-  insert(code: string, email: string) {
-    const expiresAt = DateTime.now()
-      .plus({ hours: 1 })
-      .toJSDate()
-      .toISOString();
+    insert(code: string, email: string) {
+        const expiresAt = DateTime.now().plus({ hours: 1 }).toJSDate().toISOString();
 
-    return this.verificationCodeRepository.save({ code, email, expiresAt });
-  }
-
-  async find(code: string, email: string) {
-    const user = await this.userService.findByEmail(email);
-
-    if (!user) {
-      throw new CustomNotFoundException({
-        code: 'email-not-found',
-        message: 'This email is not registered',
-      });
+        return this.verificationCodeRepository.save({ code, email, expiresAt });
     }
 
-    return this.verificationCodeRepository.findOne({
-      where: {
-        code,
-        email,
-      },
-    });
-  }
+    async find(code: string, email: string) {
+        const user = await this.userService.findByEmail(email);
 
-  async validate(code: string, email: string) {
-    const user = await this.userService.findByEmail(email);
+        if (!user) {
+            throw new CustomNotFoundException({
+                code: 'email-not-found',
+                message: 'This email is not registered',
+            });
+        }
 
-    if (!user) {
-      throw new CustomNotFoundException({
-        code: 'email-not-found',
-        message: 'This email is not registered',
-      });
+        return this.verificationCodeRepository.findOne({
+            where: {
+                code,
+                email,
+            },
+        });
     }
 
-    const validCode = await this.verificationCodeRepository.findOne({
-      where: {
-        code,
-        email,
-        expiresAt: MoreThanOrEqual(new Date()),
-        isUsed: false,
-      },
-    });
+    async validate(code: string, email: string) {
+        const user = await this.userService.findByEmail(email);
 
-    return {
-      valid: validCode ? true : false,
-      id: validCode?.id || undefined,
-      code: validCode?.code || code,
-      email: validCode?.email || email,
-      expiresAt: validCode?.expiresAt || undefined,
-    };
-  }
+        if (!user) {
+            throw new CustomNotFoundException({
+                code: 'email-not-found',
+                message: 'This email is not registered',
+            });
+        }
 
-  async generate() {
-    const code = Math.floor(100000 + Math.random() * 900000);
+        const validCode = await this.verificationCodeRepository.findOne({
+            where: {
+                code,
+                email,
+                expiresAt: MoreThanOrEqual(new Date()),
+                isUsed: false,
+            },
+        });
 
-    return code.toString();
-  }
+        return {
+            valid: validCode ? true : false,
+            id: validCode?.id || undefined,
+            code: validCode?.code || code,
+            email: validCode?.email || email,
+            expiresAt: validCode?.expiresAt || undefined,
+        };
+    }
 
-  async markAsUsed(id: number) {
-    return this.verificationCodeRepository.update(id, { isUsed: true });
-  }
+    async generate() {
+        const code = Math.floor(100000 + Math.random() * 900000);
 
-  async delete(id: number) {
-    return this.verificationCodeRepository.delete(id);
-  }
+        return code.toString();
+    }
+
+    async markAsUsed(id: number) {
+        return this.verificationCodeRepository.update(id, { isUsed: true });
+    }
+
+    async delete(id: number) {
+        return this.verificationCodeRepository.delete(id);
+    }
 }

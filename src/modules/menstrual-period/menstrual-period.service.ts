@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { parseISO } from 'date-fns';
 import {
-  CustomBadRequestException,
-  CustomConflictException,
-  CustomNotFoundException,
+    CustomBadRequestException,
+    CustomConflictException,
+    CustomNotFoundException,
 } from '../../shared/exceptions/http-exception';
 import { CreateMenstrualPeriodDateDto } from './dtos/create-menstrual-date.dto';
 import { CreateMenstrualPeriodDto } from './dtos/create-menstrual-period.dto';
@@ -13,14 +13,18 @@ import { MenstrualPeriodRepository } from './menstrual-period.repository';
 
 @Injectable()
 export class MenstrualPeriodService {
-  constructor(
-    private menstrualPeriodRepository: MenstrualPeriodRepository,
-    private menstrualPeriodDateRepository: MenstrualPeriodDateRepository,
-  ) {}
+    constructor(
+        private menstrualPeriodRepository: MenstrualPeriodRepository,
+        private menstrualPeriodDateRepository: MenstrualPeriodDateRepository,
+    ) {}
 
   async create(body: CreateMenstrualPeriodDto, userId: number) {
     const menstrualPeriod = { ...body, userId };
     return this.menstrualPeriodRepository.save(menstrualPeriod);
+  }
+
+  async getByDate(userId: number, year: string, month?: string) {
+    return this.menstrualPeriodRepository.getMenstrualPeriods(userId, year, month);
   }
 
   async getLastByUserId(userId: number): Promise<MenstrualPeriod | undefined> {
@@ -106,7 +110,78 @@ export class MenstrualPeriodService {
     }
   }
 
-  toLocalDate(date: Date) {
-    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-  }
+        const closestPreviousPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
+            bodyDate.toISOString(),
+        );
+
+        const nextPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
+            bodyDate.toISOString(),
+            'future',
+        );
+
+        let daysUntillNextPeriod: number;
+
+        if (nextPeriod) {
+            const nextPeriodDate = this.toLocalDate(new Date(nextPeriod.lastDate));
+
+            const differenceInTime = nextPeriodDate.getTime() - bodyDate.getTime();
+            daysUntillNextPeriod = differenceInTime / (1000 * 3600 * 24);
+
+            if (daysUntillNextPeriod <= 3) {
+                shouldCreateMenstrualPeriod = false;
+                menstrualPeriodId = nextPeriod.id;
+
+                this.menstrualPeriodRepository.update(menstrualPeriodId, { startedAt: bodyDate });
+            }
+        }
+
+        if(!nextPeriod || daysUntillNextPeriod > 3) {
+            if (!closestPreviousPeriod) {
+                shouldCreateMenstrualPeriod = true;
+            } else {
+                menstrualPeriodId = closestPreviousPeriod.id;
+
+                const closestPeriodDate = this.toLocalDate(new Date(closestPreviousPeriod.lastDate));
+
+                const differenceInTime = bodyDate.getTime() - closestPeriodDate.getTime();
+                const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+
+                if (differenceInDays > 3) {
+                    shouldCreateMenstrualPeriod = true;
+                }
+            }
+        }
+
+        if (shouldCreateMenstrualPeriod) {
+            const newPeriod = await this.menstrualPeriodRepository.save({
+                startedAt: bodyDate,
+                lastDate: now,
+                userId,
+            });
+
+            menstrualPeriodId = newPeriod.id;
+        }
+
+        const existingDate = await this.menstrualPeriodDateRepository.findByPeriodIdAndDate(
+            menstrualPeriodId,
+            bodyDate,
+        );
+
+        if (existingDate) {
+            throw new CustomConflictException({
+                code: 'date-already-added',
+                message: 'This date was already added.',
+            });
+        }
+
+        return this.menstrualPeriodDateRepository.insertDate({
+            ...body,
+            menstrualPeriodId,
+            date: body.date,
+        });
+    }
+
+    toLocalDate(date: Date) {
+        return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    }
 }
