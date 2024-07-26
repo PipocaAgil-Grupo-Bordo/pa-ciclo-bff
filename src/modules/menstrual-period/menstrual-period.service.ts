@@ -96,19 +96,32 @@ export class MenstrualPeriodService {
     return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
   }
 
-  async deleteDate(id: number) {
-    let dateRepository = await this.menstrualPeriodDateRepository.findOneBy({
+  async deleteDate(id: number, userId: number) {
+    const existsDate = await this.menstrualPeriodDateRepository.findOneBy({
       id,
     });
-    if (dateRepository) {
-      await this.menstrualPeriodDateRepository.delete({ id });
-      return {
-        code: 'success',
-      };
+
+    if (existsDate) {
+      const seachUserIdInMenstrualPeriod =
+        await this.menstrualPeriodRepository.findOneBy({
+          id: existsDate.menstrualPeriodId,
+        });
+
+      if (userId === seachUserIdInMenstrualPeriod.userId) {
+        await this.menstrualPeriodDateRepository.delete({ id });
+        return {
+          code: 'success',
+        };
+      } else {
+        throw new CustomConflictException({
+          code: 'user-does-not-belong',
+          message: 'User is not from that date',
+        });
+      }
     } else {
       throw new CustomConflictException({
-        code: 'date-id-not-not-exists',
-        message: 'This date not exists',
+        code: 'date-id-does-not-exists',
+        message: 'This date does not exists',
       });
     }
   }

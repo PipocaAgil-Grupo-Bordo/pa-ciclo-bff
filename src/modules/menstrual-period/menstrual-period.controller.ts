@@ -46,7 +46,8 @@ export class MenstrualPeriodController {
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
-  deleteDate(@Param('id', ParseIntPipe) id: number) {
-    return this.menstrualPeriodService.deleteDate(id);
+  deleteDate(@Request() req: any, @Param('id', ParseIntPipe) id: number) {
+    const user = req.user;
+    return this.menstrualPeriodService.deleteDate(id, user.id);
   }
 }
