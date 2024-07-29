@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { parseISO } from 'date-fns';
 import {
-    CustomBadRequestException,
     CustomConflictException,
     CustomNotFoundException,
 } from '../../shared/exceptions/http-exception';
@@ -44,17 +43,42 @@ export class MenstrualPeriodService {
         let menstrualPeriodId: number;
         const bodyDate = parseISO(body.date);
 
-        try {
-            const closestPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
-                bodyDate.toISOString(),
-            );
+        const closestPreviousPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
+            bodyDate.toISOString(),
+            userId,
+        );
 
-            if (!closestPeriod) {
+        const nextPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
+            bodyDate.toISOString(),
+            userId,
+            'future',
+        );
+
+        let daysUntillNextPeriod: number;
+
+        if (nextPeriod) {
+            const nextPeriodDate = this.toLocalDate(new Date(nextPeriod.lastDate));
+
+            const differenceInTime = nextPeriodDate.getTime() - bodyDate.getTime();
+            daysUntillNextPeriod = differenceInTime / (1000 * 3600 * 24);
+
+            if (daysUntillNextPeriod <= 3) {
+                shouldCreateMenstrualPeriod = false;
+                menstrualPeriodId = nextPeriod.id;
+
+                this.menstrualPeriodRepository.update(menstrualPeriodId, { startedAt: bodyDate });
+            }
+        }
+
+        if (!nextPeriod || daysUntillNextPeriod > 3) {
+            if (!closestPreviousPeriod) {
                 shouldCreateMenstrualPeriod = true;
             } else {
-                menstrualPeriodId = closestPeriod.id;
+                menstrualPeriodId = closestPreviousPeriod.id;
 
-                const closestPeriodDate = this.toLocalDate(new Date(closestPeriod.lastDate));
+                const closestPeriodDate = this.toLocalDate(
+                    new Date(closestPreviousPeriod.lastDate),
+                );
 
                 const differenceInTime = bodyDate.getTime() - closestPeriodDate.getTime();
                 const differenceInDays = differenceInTime / (1000 * 3600 * 24);
@@ -66,7 +90,7 @@ export class MenstrualPeriodService {
 
             if (shouldCreateMenstrualPeriod) {
                 const newPeriod = await this.menstrualPeriodRepository.save({
-                    startedAt: now,
+                    startedAt: bodyDate,
                     lastDate: now,
                     userId,
                 });
@@ -91,15 +115,6 @@ export class MenstrualPeriodService {
                 menstrualPeriodId,
                 date: body.date,
             });
-        } catch (err) {
-            if (err.message === 'Invalid time value') {
-                throw new CustomBadRequestException({
-                    code: 'invalid-time-value',
-                    message: 'Invalid time value. Please provide a valid ISO 8601 date string.',
-                });
-            }
-
-            throw err;
         }
     }
 
