@@ -45,10 +45,12 @@ export class MenstrualPeriodService {
 
         const closestPreviousPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
             bodyDate.toISOString(),
+            userId
         );
 
         const nextPeriod = await this.menstrualPeriodRepository.findClosestPeriod(
             bodyDate.toISOString(),
+            userId,
             'future',
         );
 

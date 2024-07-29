@@ -8,15 +8,19 @@ export class MenstrualPeriodRepository extends Repository<MenstrualPeriod> {
         super(MenstrualPeriod, dataSource.createEntityManager());
     }
 
-    async getMenstrualPeriods(userId: number, year: string, month?: string): Promise<MenstrualPeriod[]> {
-        if(!month) {
+    async getMenstrualPeriods(
+        userId: number,
+        year: string,
+        month?: string,
+    ): Promise<MenstrualPeriod[]> {
+        if (!month) {
             return this.createQueryBuilder('menstrual_period')
-            .leftJoinAndSelect('menstrual_period.dates', 'dates')
-            .where('menstrual_period.userId = :userId', { userId })
-            .andWhere('EXTRACT(YEAR FROM menstrual_period.startedAt) = :year', { year })
-            .orderBy('menstrual_period.startedAt', 'ASC')
-            .addOrderBy('dates.date', 'ASC')
-            .getMany();
+                .leftJoinAndSelect('menstrual_period.dates', 'dates')
+                .where('menstrual_period.userId = :userId', { userId })
+                .andWhere('EXTRACT(YEAR FROM menstrual_period.startedAt) = :year', { year })
+                .orderBy('menstrual_period.startedAt', 'ASC')
+                .addOrderBy('dates.date', 'ASC')
+                .getMany();
         }
 
         return this.createQueryBuilder('menstrual_period')
@@ -36,22 +40,23 @@ export class MenstrualPeriodRepository extends Repository<MenstrualPeriod> {
             .getOne();
     }
 
-    findClosestPeriod(date: string, direction: 'past' | 'future' = 'past') {
+    findClosestPeriod(date: string, userId: number, direction: 'past' | 'future' = 'past') {
         const comparingDate = new Date(date);
 
-        if(direction === 'past') {
+        if (direction === 'past') {
             return this.createQueryBuilder('menstrual_period')
-            .where('menstrual_period.lastDate <= :comparingDate', { comparingDate })
-            .orderBy('menstrual_period.lastDate', 'DESC')
-            .getOne();
+                .where('menstrual_period.userId = :userId', { userId })
+                .andWhere('menstrual_period.lastDate <= :comparingDate', { comparingDate })
+                .orderBy('menstrual_period.lastDate', 'DESC')
+                .getOne();
         }
 
-        if(direction === 'future') {
+        if (direction === 'future') {
             return this.createQueryBuilder('menstrual_period')
-            .where('menstrual_period.startedAt >= :comparingDate', { comparingDate })
-            .orderBy('menstrual_period.lastDate', 'ASC')
-            .getOne();
+                .where('menstrual_period.userId = :userId', { userId })
+                .andWhere('menstrual_period.startedAt >= :comparingDate', { comparingDate })
+                .orderBy('menstrual_period.lastDate', 'ASC')
+                .getOne();
         }
-
     }
 }
