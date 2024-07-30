@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { parseISO } from 'date-fns';
 import {
   CustomConflictException,
+  CustomForbiddenException,
   CustomNotFoundException,
 } from '../../shared/exceptions/http-exception';
 import { CreateMenstrualPeriodDateDto } from './dtos/create-menstrual-date.dto';
@@ -100,29 +101,29 @@ export class MenstrualPeriodService {
     const existsDate = await this.menstrualPeriodDateRepository.findOneBy({
       id,
     });
-
-    if (existsDate) {
-      const seachUserIdInMenstrualPeriod =
-        await this.menstrualPeriodRepository.findOneBy({
-          id: existsDate.menstrualPeriodId,
-        });
-
-      if (userId === seachUserIdInMenstrualPeriod.userId) {
-        await this.menstrualPeriodDateRepository.delete({ id });
-        return {
-          code: 'success',
-        };
-      } else {
-        throw new CustomConflictException({
-          code: 'user-does-not-belong',
-          message: 'User is not from that date',
-        });
-      }
-    } else {
-      throw new CustomConflictException({
-        code: 'date-id-does-not-exists',
-        message: 'This date does not exists',
+    if (!existsDate) {
+      throw new CustomNotFoundException({
+        code: 'date-does-not-exist',
+        message: 'This date does not exist',
       });
     }
+
+    const dateBelongsToUser = await this.menstrualPeriodRepository.findOneBy({
+      id: existsDate.menstrualPeriodId,
+      userId,
+    });
+
+    if (!dateBelongsToUser) {
+      throw new CustomForbiddenException({
+        code: 'date-does-not-belong-to-user',
+        message: 'User does not have permission to delete this date',
+      });
+    }
+
+    await this.menstrualPeriodDateRepository.delete({ id });
+
+    return {
+      code: 'success',
+    };
   }
 }
