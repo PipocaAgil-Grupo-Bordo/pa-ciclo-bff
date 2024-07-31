@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { parseISO } from 'date-fns';
 import {
     CustomConflictException,
+    CustomForbiddenException,
     CustomNotFoundException,
 } from '../../shared/exceptions/http-exception';
 import { CreateMenstrualPeriodDateDto } from './dtos/create-menstrual-date.dto';
@@ -120,5 +121,35 @@ export class MenstrualPeriodService {
 
     toLocalDate(date: Date) {
         return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    }
+
+    async deleteDate(id: number, userId: number) {
+        const existsDate = await this.menstrualPeriodDateRepository.findOneBy({
+            id,
+        });
+        if (!existsDate) {
+            throw new CustomNotFoundException({
+                code: 'date-does-not-exist',
+                message: 'This date does not exist',
+            });
+        }
+
+        const dateBelongsToUser = await this.menstrualPeriodRepository.findOneBy({
+            id: existsDate.menstrualPeriodId,
+            userId,
+        });
+
+        if (!dateBelongsToUser) {
+            throw new CustomForbiddenException({
+                code: 'date-does-not-belong-to-user',
+                message: 'User does not have permission to delete this date',
+            });
+        }
+
+        await this.menstrualPeriodDateRepository.delete({ id });
+
+        return {
+            code: 'success',
+        };
     }
 }

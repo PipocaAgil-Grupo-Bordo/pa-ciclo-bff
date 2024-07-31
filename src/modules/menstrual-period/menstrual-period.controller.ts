@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Post,
+    Query,
+    Request,
+    UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateMenstrualPeriodDateDto } from './dtos/create-menstrual-date.dto';
 import { CreateMenstrualPeriodDto } from './dtos/create-menstrual-period.dto';
@@ -17,7 +28,11 @@ export class MenstrualPeriodController {
 
     @Get()
     @UseGuards(AuthGuard('jwt'))
-    async getMenstrualPeriods(@Request() req: any, @Query('year') year: string, @Query('month') month?: string) {
+    async getMenstrualPeriods(
+        @Request() req: any,
+        @Query('year') year: string,
+        @Query('month') month?: string,
+    ) {
         const user = req.user;
         return this.menstrualPeriodService.getByDate(user.id, year, month);
     }
@@ -35,5 +50,12 @@ export class MenstrualPeriodController {
     createDate(@Request() req: any, @Body() body: CreateMenstrualPeriodDateDto) {
         const user = req.user;
         return this.menstrualPeriodService.createDate(body, user.id);
+    }
+
+    @Delete('date/:id')
+    @UseGuards(AuthGuard('jwt'))
+    deleteDate(@Request() req: any, @Param('id', ParseIntPipe) id: number) {
+        const user = req.user;
+        return this.menstrualPeriodService.deleteDate(id, user.id);
     }
 }
