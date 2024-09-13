@@ -10,7 +10,10 @@ import { VerificationCodeModule } from './modules/verification-code/verification
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
+      isGlobal: true,
+    }),
     DatabaseModule,
     UserModule,
     AuthModule,
