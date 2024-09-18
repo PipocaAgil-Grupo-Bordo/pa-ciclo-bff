@@ -11,7 +11,7 @@ import { VerificationCodeModule } from './modules/verification-code/verification
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
+      envFilePath: '.env',
       isGlobal: true,
     }),
     DatabaseModule,
