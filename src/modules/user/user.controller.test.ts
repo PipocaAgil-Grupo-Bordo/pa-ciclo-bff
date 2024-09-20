@@ -48,7 +48,6 @@ describe('UserController', () => {
 
     dataSource = testingModule.get<DataSource>(DataSource);
 
-    await cleanDatabase();
     await app.init();
   });
 
@@ -57,6 +56,7 @@ describe('UserController', () => {
   });
 
   afterAll(async () => {
+    await cleanDatabase();
     await app.close();
   });
 
