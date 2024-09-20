@@ -11,7 +11,6 @@ import { VerificationCodeModule } from './modules/verification-code/verification
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
       isGlobal: true,
     }),
     DatabaseModule,

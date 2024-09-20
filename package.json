@@ -21,7 +21,9 @@
     "typeorm": "npm run build && npx typeorm -d dist/database/data-source.js",
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:run": "npm run typeorm -- migration:run",
-    "migration:revert": "npm run typeorm -- migration:revert"
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "typeorm:test": "npm run build && cross-env NODE_ENV=test npx typeorm -d dist/database/data-source.js",
+    "migration:test:run": "npm run typeorm:test -- migration:run"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
