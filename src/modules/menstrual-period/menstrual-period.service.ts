@@ -22,7 +22,7 @@ export class MenstrualPeriodService {
         return this.menstrualPeriodRepository.save(menstrualPeriod);
     }
 
-    async getByDate(userId: number, year: string, month?: string) {
+    async getByDate(userId: number, year?: string, month?: string) {
         return this.menstrualPeriodRepository.getMenstrualPeriods(userId, year, month);
     }
 
