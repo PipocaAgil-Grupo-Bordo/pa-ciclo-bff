@@ -40,7 +40,11 @@ export class MenstrualPeriodRepository extends Repository<MenstrualPeriod> {
             .getOne();
     }
 
-    findClosestPeriod(date: string, userId: number, direction: 'past' | 'future' = 'past') {
+    findClosestPeriod(
+        date: string,
+        userId: number,
+        direction: 'past' | 'future' = 'past',
+    ): Promise<MenstrualPeriod | undefined> {
         const comparingDate = new Date(date);
 
         if (direction === 'past') {
@@ -58,5 +62,18 @@ export class MenstrualPeriodRepository extends Repository<MenstrualPeriod> {
                 .orderBy('menstrual_period.lastDate', 'ASC')
                 .getOne();
         }
+    }
+
+    async findPeriodCoveringDate(
+        date: string,
+        userId: number,
+    ): Promise<MenstrualPeriod | undefined> {
+        const comparingDate = new Date(date);
+
+        return this.createQueryBuilder('menstrual_period')
+            .where('menstrual_period.userId = :userId', { userId })
+            .andWhere('menstrual_period.startedAt <= :comparingDate', { comparingDate })
+            .andWhere('menstrual_period.lastDate >= :comparingDate', { comparingDate })
+            .getOne();
     }
 }
