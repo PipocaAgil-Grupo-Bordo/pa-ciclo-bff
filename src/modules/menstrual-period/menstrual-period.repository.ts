@@ -10,14 +10,30 @@ export class MenstrualPeriodRepository extends Repository<MenstrualPeriod> {
 
     async getMenstrualPeriods(
         userId: number,
-        year: string,
+        year?: string,
         month?: string,
     ): Promise<MenstrualPeriod[]> {
-        if (!month) {
+        if (!year) {
+            const thirtyYearsAgo = new Date();
+            thirtyYearsAgo.setFullYear(thirtyYearsAgo.getFullYear() - 30);
+
+            return this.createQueryBuilder('menstrual_period')
+                .leftJoinAndSelect('menstrual_period.dates', 'dates')
+                .where('menstrual_period.userId = :userId', { userId })
+                .andWhere('menstrual_period.startedAt >= :thirtyYearsAgo', {
+                    thirtyYearsAgo,
+                })
+                .orderBy('menstrual_period.startedAt', 'ASC')
+                .addOrderBy('dates.date', 'ASC')
+                .getMany();
+        }
+
+        if (month && year) {
             return this.createQueryBuilder('menstrual_period')
                 .leftJoinAndSelect('menstrual_period.dates', 'dates')
                 .where('menstrual_period.userId = :userId', { userId })
                 .andWhere('EXTRACT(YEAR FROM menstrual_period.startedAt) = :year', { year })
+                .andWhere('EXTRACT(MONTH FROM menstrual_period.startedAt) = :month', { month })
                 .orderBy('menstrual_period.startedAt', 'ASC')
                 .addOrderBy('dates.date', 'ASC')
                 .getMany();
@@ -27,7 +43,6 @@ export class MenstrualPeriodRepository extends Repository<MenstrualPeriod> {
             .leftJoinAndSelect('menstrual_period.dates', 'dates')
             .where('menstrual_period.userId = :userId', { userId })
             .andWhere('EXTRACT(YEAR FROM menstrual_period.startedAt) = :year', { year })
-            .andWhere('EXTRACT(MONTH FROM menstrual_period.startedAt) = :month', { month })
             .orderBy('menstrual_period.startedAt', 'ASC')
             .addOrderBy('dates.date', 'ASC')
             .getMany();

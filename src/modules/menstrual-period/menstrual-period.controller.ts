@@ -30,7 +30,7 @@ export class MenstrualPeriodController {
     @UseGuards(AuthGuard('jwt'))
     async getMenstrualPeriods(
         @Request() req: any,
-        @Query('year') year: string,
+        @Query('year') year?: string,
         @Query('month') month?: string,
     ) {
         const user = req.user;
