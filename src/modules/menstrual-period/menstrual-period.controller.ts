@@ -3,13 +3,14 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateMenstrualPeriodDateDto } from './dtos/create-menstrual-date.dto';
 import { CreateMenstrualPeriodDto } from './dtos/create-menstrual-period.dto';
 import { MenstrualPeriodService } from './menstrual-period.service';
-import { CreateMenstrualPeriodDateDto } from './dtos/create-menstrual-date.dto';
 
 @Controller('menstrual-period')
 export class MenstrualPeriodController {
@@ -22,6 +23,17 @@ export class MenstrualPeriodController {
   create(@Request() req: any, @Body() body: CreateMenstrualPeriodDto) {
     const user = req.user;
     return this.menstrualPeriodService.create(body, user.id);
+  }
+
+  @Get()
+  @UseGuards(AuthGuard('jwt'))
+  async getMenstrualPeriods(
+    @Request() req: any,
+    @Query('year') year?: string,
+    @Query('month') month?: string,
+  ) {
+    const user = req.user;
+    return this.menstrualPeriodService.getByDate(user.id, year, month);
   }
 
   @Get('last')

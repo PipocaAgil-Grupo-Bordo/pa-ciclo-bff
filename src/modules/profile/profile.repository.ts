@@ -4,7 +4,7 @@ import { Profile } from './entities/profile.entity';
 
 @Injectable()
 export class ProfileRepository extends Repository<Profile> {
-  constructor(private dataSource: DataSource) {
-    super(Profile, dataSource.createEntityManager());
-  }
+    constructor(private dataSource: DataSource) {
+        super(Profile, dataSource.createEntityManager());
+    }
 }

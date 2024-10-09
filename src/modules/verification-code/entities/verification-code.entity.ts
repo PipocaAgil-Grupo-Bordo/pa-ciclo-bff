@@ -3,15 +3,15 @@ import { IdTimestampBaseEntity } from '../../../shared/common/id-timestamp.base-
 
 @Entity()
 export class VerificationCode extends IdTimestampBaseEntity {
-  @Column()
-  code: string;
+    @Column()
+    code: string;
 
-  @Column()
-  email: string;
+    @Column()
+    email: string;
 
-  @Column()
-  expiresAt: Date;
+    @Column()
+    expiresAt: Date;
 
-  @Column({ default: false })
-  isUsed: boolean;
+    @Column({ default: false })
+    isUsed: boolean;
 }
