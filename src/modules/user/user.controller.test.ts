@@ -60,7 +60,7 @@ describe('UserController', () => {
     await app.close();
   });
 
-  it('/should not create a new user if the body is invalid', async () => {
+  it('should not create a new user if the body is invalid', async () => {
     const userDto = {
       name: 'Test User',
       email: 'test_user123@hotmail.com',
@@ -72,7 +72,7 @@ describe('UserController', () => {
       .expect(HttpStatus.BAD_REQUEST);
   });
 
-  it('/should not create a new user if the user already exists', async () => {
+  it('should not create a new user if the user already exists', async () => {
     const userDto: CreateUserDto = {
       name: 'Test User',
       email: 'test_user123@hotmail.com',
@@ -91,7 +91,7 @@ describe('UserController', () => {
       .expect(HttpStatus.CONFLICT);
   });
 
-  it('/should create a new user', async () => {
+  it('should create a new user', async () => {
     const userDto: CreateUserDto = {
       name: 'Test User',
       email: 'test_user123@hotmail.com',
