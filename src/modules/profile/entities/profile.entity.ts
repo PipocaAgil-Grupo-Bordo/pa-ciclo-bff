@@ -16,6 +16,9 @@ export class Profile extends IdTimestampBaseEntity {
   @Column({ nullable: true })
   menstrualCycleDuration?: number;
 
+  @Column({ type: 'date', nullable: true })
+  initialPeriodDate: Date;
+
   @Column({ unique: true })
   userId: number;
 

@@ -1,4 +1,10 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+} from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -20,4 +26,8 @@ export class UpdateProfileDto {
   @IsNotEmpty()
   @IsNumber()
   menstrualCycleDuration?: number;
+
+  @IsOptional()
+  @IsDateString()
+  initialPeriodDate?: string;
 }
