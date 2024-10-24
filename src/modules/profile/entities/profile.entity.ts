@@ -4,21 +4,24 @@ import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Profile extends IdTimestampBaseEntity {
-  @Column({ type: 'integer', nullable: true })
-  height?: number;
+    @Column({ type: 'integer', nullable: true })
+    height?: number;
 
-  @Column({ type: 'double precision', nullable: true })
-  weight?: number;
+    @Column({ type: 'double precision', nullable: true })
+    weight?: number;
 
-  @Column({ default: true })
-  isMenstrualCycleRegular?: boolean;
+    @Column({ default: true })
+    isMenstrualCycleRegular?: boolean;
 
-  @Column({ nullable: true })
-  menstrualCycleDuration?: number;
+    @Column({ nullable: true })
+    menstrualCycleDuration?: number;
 
-  @Column({ unique: true })
-  userId: number;
+    @Column({ type: 'date', nullable: true })
+    initialPeriodDate: Date;
 
-  @OneToOne(() => User)
-  user: User;
+    @Column({ unique: true })
+    userId: number;
+
+    @OneToOne(() => User)
+    user: User;
 }

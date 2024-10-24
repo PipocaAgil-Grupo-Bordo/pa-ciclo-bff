@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Patch,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { VerificationCodeService } from '../verification-code/verification-code.service';
 import { AuthService } from './auth.service';
@@ -18,43 +10,43 @@ import { VerificationCodeValidationDto } from './dtos/verification-code-validati
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly verificationCodeService: VerificationCodeService,
-  ) {}
+    constructor(
+        private readonly authService: AuthService,
+        private readonly verificationCodeService: VerificationCodeService,
+    ) {}
 
-  @Post('login')
-  login(@Body() body: LoginDto) {
-    return this.authService.login(body);
-  }
+    @Post('login')
+    login(@Body() body: LoginDto) {
+        return this.authService.login(body);
+    }
 
-  @Get('whoami')
-  @UseGuards(AuthGuard('jwt'))
-  whoami(@Request() req) {
-    const user = req.user;
-    return user;
-  }
+    @Get('whoami')
+    @UseGuards(AuthGuard('jwt'))
+    whoami(@Request() req) {
+        const user = req.user;
+        return user;
+    }
 
-  @Patch('reset-password')
-  @UseGuards(AuthGuard('jwt'))
-  async resetPassword(@Request() req, @Body() { password }: ResetPasswordDto) {
-    const bearerToken = req.headers['authorization'];
+    @Patch('reset-password')
+    @UseGuards(AuthGuard('jwt'))
+    async resetPassword(@Request() req, @Body() { password }: ResetPasswordDto) {
+        const bearerToken = req.headers['authorization'];
 
-    return await this.authService.resetPassword(bearerToken, password);
-  }
+        return await this.authService.resetPassword(bearerToken, password);
+    }
 
-  @Post('reset-password/request')
-  async requestPasswordReset(@Body() { email }: ResetPasswordRequestDto) {
-    return await this.authService.requestPasswordReset(email);
-  }
+    @Post('reset-password/request')
+    async requestPasswordReset(@Body() { email }: ResetPasswordRequestDto) {
+        return await this.authService.requestPasswordReset(email);
+    }
 
-  @Post('reset-password/validate')
-  async validateVerificationCode(@Body() body: VerificationCodeValidationDto) {
-    return await this.authService.validateVerificationCode(body);
-  }
+    @Post('reset-password/validate')
+    async validateVerificationCode(@Body() body: VerificationCodeValidationDto) {
+        return await this.authService.validateVerificationCode(body);
+    }
 
-  @Post('refresh-token')
-  refreshToken(@Body() { refreshToken }: RefreshTokenDto) {
-    return this.authService.refreshToken(refreshToken);
-  }
+    @Post('refresh-token')
+    refreshToken(@Body() { refreshToken }: RefreshTokenDto) {
+        return this.authService.refreshToken(refreshToken);
+    }
 }

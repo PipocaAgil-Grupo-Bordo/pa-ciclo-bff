@@ -10,7 +10,9 @@ import { VerificationCodeModule } from './modules/verification-code/verification
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     DatabaseModule,
     UserModule,
     AuthModule,

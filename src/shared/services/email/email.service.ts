@@ -6,29 +6,29 @@ import { CustomInternalServerErrorException } from '../../exceptions/http-except
 
 @Injectable()
 export class EmailService {
-  async isValid(email: string) {
-    const { valid } = await emailValidator(email);
+    async isValid(email: string) {
+        const { valid } = await emailValidator(email);
 
-    return valid;
-  }
+        return valid;
+    }
 
-  async sendVerificationCode(user: User, code: string) {
-    const transport = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: Number(process.env.EMAIL_PORT) || 0,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    async sendVerificationCode(user: User, code: string) {
+        const transport = nodemailer.createTransport({
+            host: process.env.EMAIL_HOST,
+            port: Number(process.env.EMAIL_PORT) || 0,
+            secure: false,
+            auth: {
+                user: process.env.EMAIL_USERNAME,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
 
-    return transport
-      .sendMail({
-        from: 'Ciclo Ágil <cicloagil@outlook.com>',
-        to: user.email,
-        subject: 'Redefinição de senha',
-        html: `<!DOCTYPE html>
+        return transport
+            .sendMail({
+                from: 'Ciclo Ágil <cicloagil@outlook.com>',
+                to: user.email,
+                subject: 'Redefinição de senha',
+                html: `<!DOCTYPE html>
         <html lang="pt-BR">
         <head>
           <meta charset="UTF-8">
@@ -52,16 +52,16 @@ export class EmailService {
           </div>
         </body>
         </html>`,
-        text: `Olá, ${user.name}, para redefinir a sua senha utilize o código a seguir: ${code}`,
-      })
-      .then(() => {
-        return { message: 'Email successfully sent' };
-      })
-      .catch((error) => {
-        throw new CustomInternalServerErrorException({
-          code: 'error-seinding-email',
-          message: error.message,
-        });
-      });
-  }
+                text: `Olá, ${user.name}, para redefinir a sua senha utilize o código a seguir: ${code}`,
+            })
+            .then(() => {
+                return { message: 'Email successfully sent' };
+            })
+            .catch((error) => {
+                throw new CustomInternalServerErrorException({
+                    code: 'error-seinding-email',
+                    message: error.message,
+                });
+            });
+    }
 }
